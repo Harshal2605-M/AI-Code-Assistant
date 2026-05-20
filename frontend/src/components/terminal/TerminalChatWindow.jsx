@@ -1,13 +1,10 @@
-import TerminalMessageBubble
-from "../common/TerminalMessageBubble"
-
-import ChatInput
-from "../common/ChatInput"
-
-import TerminalSourcePanel
-from "../common/TerminalSourcePanel"
+import {useChat} from "../../contexts/ChatContext"
+import TerminalMessageBubble from "../common/TerminalMessageBubble"
+import ChatInput from "../common/ChatInput"
 
 function TerminalChatWindow(){
+
+const {messages}=useChat()
 
 return(
 
@@ -15,36 +12,47 @@ return(
 style={{
 
 flex:1,
-
 height:"100vh",
 
-background:"#050505",
+background:"#000",
 
 display:"flex",
 
 flexDirection:"column",
-
-padding:"25px",
-
-fontFamily:"monospace",
 
 overflow:"hidden"
 
 }}
 >
 
-{/* Title */}
+
+{/* TOP BAR */}
+
+<div
+style={{
+
+padding:"25px 40px",
+
+borderBottom:
+"1px solid rgba(255,140,0,.15)"
+
+}}
+>
 
 <div
 style={{
 
 textAlign:"center",
 
+fontSize:"22px",
+
 color:"#FF8C00",
 
-fontSize:"18px",
+fontFamily:
+"'Share Tech Mono', monospace",
 
-marginBottom:"25px"
+textShadow:
+"0 0 10px rgba(255,140,0,.7)"
 
 }}
 >
@@ -53,102 +61,69 @@ Explain deadlock in operating system
 
 </div>
 
+</div>
 
 
-{/* Main content */}
+
+{/* CHAT AREA */}
 
 <div
 style={{
 
 flex:1,
 
-display:"flex",
+overflowY:"auto",
 
-gap:"30px",
-
-overflow:"hidden",
-
-flexWrap:"wrap"
-
-}}
->
-
-{/* Chat messages */}
-
-<div
-style={{
-
-flex:"3",
-
-minWidth:"500px",
+padding:"30px 40px",
 
 display:"flex",
 
 flexDirection:"column",
 
-gap:"30px",
-
-overflowY:"auto",
-
-paddingRight:"10px"
-
-}}
->
-
-<TerminalMessageBubble
-
-role="user"
-
-message="
-Explain deadlock in operating system"
-
-/>
-
-
-<TerminalMessageBubble
-
-role="assistant"
-
-message="
-Deadlock is a situation in which
-two or more processes wait indefinitely."
-
-/>
-
-</div>
-
-
-{/* Source Panel */}
-
-<div
-style={{
-
-flex:"1",
-
-minWidth:"120px"
-
-}}
->
-
-<TerminalSourcePanel/>
-
-</div>
-
-</div>
-
-
-{/* Input Area */}
-
-<div
-style={{
-
-paddingTop:"20px",
-
-maxWidth:"1100px",
-
 width:"100%",
 
+maxWidth:"1500px",
+
 margin:"0 auto"
+
+}}
+>
+
+{
+
+messages.map(
+
+(msg,index)=>(
+
+<TerminalMessageBubble
+
+key={index}
+
+role={msg.role}
+
+message={msg.text}
+
+/>
+
+)
+
+)
+
+}
+
+</div>
+
+
+
+{/* INPUT */}
+
+<div
+style={{
+
+padding:"25px 40px",
+
+borderTop:
+"1px solid rgba(255,140,0,.15)"
 
 }}
 >
@@ -156,6 +131,7 @@ margin:"0 auto"
 <ChatInput/>
 
 </div>
+
 
 </div>
 

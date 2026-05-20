@@ -11,3 +11,24 @@ overflow:hidden;
 font-family:Arial, sans-serif;
 
 }
+@keyframes pulse{
+
+0%{
+opacity:.3;
+transform:translateY(0px);
+}
+
+50%{
+opacity:1;
+transform:translateY(-3px);
+}
+
+100%{
+opacity:.3;
+transform:translateY(0px);
+}
+
+}
+@import url(
+'https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap'
+);

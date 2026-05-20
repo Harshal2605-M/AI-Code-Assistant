@@ -13,6 +13,14 @@ ThemeProvider
 
 from "./contexts/ThemeContext"
 
+import {
+
+ChatProvider
+
+}
+
+from "./contexts/ChatContext"
+
 
 createRoot(
 document.getElementById(
@@ -25,7 +33,11 @@ document.getElementById(
 
 <ThemeProvider>
 
+<ChatProvider>
+
 <App/>
+
+</ChatProvider>
 
 </ThemeProvider>
 

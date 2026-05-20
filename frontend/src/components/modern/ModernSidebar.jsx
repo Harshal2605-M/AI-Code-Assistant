@@ -1,34 +1,51 @@
-import { useTheme } from "../../contexts/ThemeContext"
+import {useTheme}
+from "../../contexts/ThemeContext"
+
+import {useChat}
+from "../../contexts/ChatContext"
+
 
 function ModernSidebar(){
 
-const {toggleTheme}=useTheme()
+const {toggleTheme}=
+useTheme()
+
+const {
+
+clearChat,
+history,
+loadChat
+
+}=useChat()
+
 
 return(
 
 <div
 style={{
 
-width:"280px",
+width:"300px",
 
 height:"100vh",
 
-background:"#0F172A",
+background:
+"#0F172A",
 
-color:"white",
-
-padding:"24px",
+padding:"28px",
 
 display:"flex",
 
 flexDirection:"column",
 
-gap:"20px",
+borderRight:
+"1px solid #23304E",
 
-borderRight:"1px solid #2A3441"
+color:"white"
 
 }}
 >
+
+{/* Header */}
 
 <div
 style={{
@@ -37,16 +54,26 @@ display:"flex",
 
 justifyContent:"space-between",
 
-alignItems:"center"
+alignItems:"center",
+
+marginBottom:"30px"
 
 }}
 >
 
-<h2>
+<h1
+style={{
+
+fontSize:"28px",
+fontWeight:"700",
+margin:0
+
+}}
+>
 
 ⚡ AI Assistant
 
-</h2>
+</h1>
 
 
 <button
@@ -55,13 +82,11 @@ onClick={toggleTheme}
 
 style={{
 
-background:"transparent",
-
 border:"none",
 
-color:"#7C3AED",
+background:"transparent",
 
-fontSize:"20px",
+fontSize:"24px",
 
 cursor:"pointer"
 
@@ -76,23 +101,33 @@ cursor:"pointer"
 </div>
 
 
+
+{/* New Chat */}
+
 <button
+
+onClick={clearChat}
 
 style={{
 
-background:"#7C3AED",
+padding:"18px",
 
 border:"none",
 
-padding:"14px",
+borderRadius:"22px",
 
-borderRadius:"16px",
+background:
+"linear-gradient(90deg,#7C3AED,#A855F7)",
 
 color:"white",
 
+fontSize:"24px",
+
+fontWeight:"600",
+
 cursor:"pointer",
 
-fontWeight:"600"
+marginBottom:"40px"
 
 }}
 
@@ -103,52 +138,107 @@ fontWeight:"600"
 </button>
 
 
-<p
+
+<div
 style={{
 
-color:"#94A3B8",
+fontSize:"14px",
 
-fontSize:"12px"
+opacity:.7,
+
+marginBottom:"18px"
 
 }}
 >
 
 RECENT CHATS
 
-</p>
+</div>
 
 
 <div
 style={{
 
-padding:"16px",
+flex:1,
 
-background:"#1E293B",
+overflowY:"auto"
 
-borderRadius:"18px",
+}}
+>
 
-boxShadow:
-"0 0 20px rgba(124,58,237,.25)"
+{
+
+history.length===0?
+
+(
+
+<div
+style={{
+
+opacity:.5,
+
+fontSize:"14px"
+
+}}
+>
+
+No chats yet
+
+</div>
+
+)
+
+:
+
+history.map(chat=>(
+
+<div
+
+key={chat.id}
+
+onClick={()=>loadChat(chat.id)}
+
+style={{
+
+padding:"18px",
+
+marginBottom:"14px",
+
+background:"#1E2A44",
+
+borderRadius:"20px",
+
+cursor:"pointer",
+
+transition:"0.3s"
 
 }}
 
 >
 
-Explain deadlock
+{chat.title}
 
 </div>
 
-<div>C++ Inheritance</div>
+))
 
-<div>DBMS Normalization</div>
+}
 
-<div>CSS Flexbox</div>
+</div>
+
 
 
 <div
 style={{
 
-marginTop:"auto"
+marginTop:"auto",
+
+paddingTop:"20px",
+
+borderTop:
+"1px solid #23304E",
+
+fontSize:"18px"
 
 }}
 >

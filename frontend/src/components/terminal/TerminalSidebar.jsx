@@ -1,9 +1,21 @@
 import {useTheme}
 from "../../contexts/ThemeContext"
 
+import {useChat}
+from "../../contexts/ChatContext"
+
 function TerminalSidebar(){
 
 const {toggleTheme}=useTheme()
+
+const {
+
+clearChat,
+history,
+loadChat
+
+}=useChat()
+
 
 return(
 
@@ -11,36 +23,26 @@ return(
 style={{
 
 width:"260px",
-
 height:"100vh",
-
 background:"#0A0A0A",
-
 color:"#39FF14",
-
 padding:"25px",
-
 fontFamily:"monospace",
-
 display:"flex",
-
 flexDirection:"column",
-
-borderRight:
-"1px solid #262626"
+borderRight:"1px solid #262626"
 
 }}
 >
+
+{/* Header */}
 
 <div
 style={{
 
 display:"flex",
-
 justifyContent:"space-between",
-
 alignItems:"center",
-
 marginBottom:"25px"
 
 }}
@@ -49,8 +51,8 @@ marginBottom:"25px"
 <h2
 style={{
 
-textShadow:
-"0 0 8px #39FF14"
+margin:0,
+textShadow:"0 0 8px #39FF14"
 
 }}
 >
@@ -67,13 +69,9 @@ onClick={toggleTheme}
 style={{
 
 background:"transparent",
-
 border:"none",
-
 color:"#FF8C00",
-
-fontSize:"18px",
-
+fontSize:"22px",
 cursor:"pointer"
 
 }}
@@ -87,23 +85,19 @@ cursor:"pointer"
 </div>
 
 
+
 <button
+
+onClick={clearChat}
 
 style={{
 
 background:"transparent",
-
-border:
-"1px solid #FF8C00",
-
-padding:"12px",
-
+border:"1px solid #FF8C00",
+padding:"14px",
 color:"#39FF14",
-
 cursor:"pointer",
-
-borderRadius:"6px",
-
+borderRadius:"8px",
 marginBottom:"25px"
 
 }}
@@ -115,13 +109,12 @@ marginBottom:"25px"
 </button>
 
 
+
 <div
 style={{
 
 color:"#BFBFBF",
-
 fontSize:"12px",
-
 marginBottom:"15px"
 
 }}
@@ -132,54 +125,83 @@ TODAY
 </div>
 
 
+
 <div
 style={{
 
-padding:"12px",
-
-background:"#171717",
-
-border:
-"1px solid #262626",
-
-borderRadius:"6px",
-
-color:"#FF8C00"
+flex:1,
+overflowY:"auto"
 
 }}
 >
 
-Explain deadlock
+{
+
+history.length===0 ?
+
+(
+
+<div
+style={{
+
+color:"#777"
+
+}}
+>
+
+No chats
 
 </div>
 
-<div style={{marginTop:"12px"}}>
+)
 
-C++ Inheritance
+:
+
+history.map(chat=>(
+
+<div
+
+key={chat.id}
+
+onClick={()=>loadChat(chat.id)}
+
+style={{
+
+padding:"14px",
+
+background:"#171717",
+
+border:"1px solid #262626",
+
+borderRadius:"8px",
+
+color:"#FF8C00",
+
+cursor:"pointer",
+
+marginBottom:"12px"
+
+}}
+
+>
+
+{chat.title}
 
 </div>
 
-<div style={{marginTop:"12px"}}>
+))
 
-DBMS Normalization
-
-</div>
-
-<div style={{marginTop:"12px"}}>
-
-CSS Flexbox
+}
 
 </div>
+
 
 
 <div
 style={{
 
 marginTop:"auto",
-
-borderTop:
-"1px solid #262626",
-
+borderTop:"1px solid #262626",
 paddingTop:"20px"
 
 }}

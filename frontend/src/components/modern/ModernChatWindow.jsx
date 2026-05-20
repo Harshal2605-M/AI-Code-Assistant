@@ -1,9 +1,12 @@
 import ModernMessageBubble from "../common/ModernMessageBubble"
 import ChatInput from "../common/ChatInput"
-import SourceCard from "../common/SourceCard"
 import Topbar from "../common/Topbar"
 
+import {useChat} from "../../contexts/ChatContext"
+
 function ModernChatWindow(){
+
+const {messages}=useChat()
 
 return(
 
@@ -14,7 +17,7 @@ flex:1,
 
 height:"100vh",
 
-background:"#0B1020",
+background:"#050816",
 
 display:"flex",
 
@@ -22,97 +25,95 @@ flexDirection:"column",
 
 padding:"30px",
 
+boxSizing:"border-box",
+
 overflow:"hidden"
 
 }}
 >
+
+{/* HEADER */}
 
 <Topbar
 title="Explain deadlock in operating system"
 />
 
 
+{/* CHAT AREA */}
+
 <div
 style={{
 
 flex:1,
 
-display:"grid",
+display:"flex",
 
-gridTemplateColumns:"1fr 320px",
+flexDirection:"column",
 
-gap:"25px",
+marginTop:"25px",
 
 overflow:"hidden"
 
 }}
 >
 
-{/* chat */}
+
+{/* MESSAGES */}
 
 <div
 style={{
 
-display:"flex",
-
-flexDirection:"column",
-
-gap:"25px",
+flex:1,
 
 overflowY:"auto",
 
-paddingRight:"10px"
+paddingRight:"10px",
+
+scrollBehavior:"smooth"
 
 }}
 >
 
-<ModernMessageBubble
+{
 
-role="user"
+messages.map(
 
-message="Explain deadlock"
-
-/>
+(msg,index)=>(
 
 <ModernMessageBubble
 
-role="assistant"
+key={index}
 
-message="
-Deadlock occurs when two or more
-processes wait indefinitely for resources."
+role={msg.role}
+
+message={msg.text}
 
 />
 
-</div>
+)
 
+)
 
-{/* sources */}
-
-<div>
-
-<SourceCard/>
+}
 
 </div>
 
-</div>
 
+
+{/* INPUT */}
 
 <div
 style={{
 
-paddingTop:"20px",
-
-maxWidth:"1000px",
-
-width:"100%",
-
-margin:"0 auto"
+paddingTop:"20px"
 
 }}
 >
 
 <ChatInput/>
+
+</div>
+
 
 </div>
 

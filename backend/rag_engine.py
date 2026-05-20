@@ -1,12 +1,17 @@
 import os
 from dotenv import load_dotenv
 import google.generativeai as genai
+from google.api_core.exceptions import ResourceExhausted
 
 from pdf_loader import load_all_pdfs
 from chunker import create_chunks
 from vector_store import create_embeddings
 from retriever import retrieve
 
+
+# ==========================
+# Load environment
+# ==========================
 
 load_dotenv()
 
@@ -17,14 +22,18 @@ genai.configure(
 )
 
 
+# ==========================
+# Load PDFs
+# ==========================
+
 print(
-    "Loading PDFs..."
+    "\nLoading PDFs..."
 )
 
-docs=load_all_pdfs()
-
+docs = load_all_pdfs()
 
 all_chunks=[]
+
 
 for doc in docs:
 
@@ -41,11 +50,12 @@ for doc in docs:
 
             "text":
             chunk
+
         })
 
 
 print(
-"Creating embeddings..."
+    "\nCreating embeddings..."
 )
 
 vectors=create_embeddings(
@@ -53,81 +63,213 @@ vectors=create_embeddings(
 )
 
 
+print(
+    f"\nTotal Chunks: {len(all_chunks)}"
+)
+
+
+# ==========================
 # Gemini model
-model = genai.GenerativeModel(
+# ==========================
+
+model=genai.GenerativeModel(
     "gemini-2.5-flash"
 )
 
 
+# ==========================
+# Main Answer Function
+# ==========================
 
-def generate_answer(
-    query
-):
+def generate_answer(query):
 
-    results=retrieve(
+    try:
 
-        query,
+        # --------------------
+        # Retrieve PDF context
+        # --------------------
 
-        vectors
-    )
+        results=retrieve(
 
+            query,
 
-    context="\n\n".join(
+            vectors
 
-        [
-            r["text"]
-
-            for r in results
-        ]
-
-    )
-
-
-    print(
-    "\nRetrieved:\n"
-    )
-
-    for r in results:
-
-        print(
-            r["source"]
         )
 
 
-    prompt=f"""
+        context="\n\n".join(
 
-You are an AI coding assistant.
+            [
 
-Use the context below:
+                r["text"]
+
+                for r in results
+
+            ]
+
+        )
+
+
+        print(
+            "\nRetrieved Sources:\n"
+        )
+
+
+        for r in results:
+
+            print(
+                r["source"]
+            )
+
+
+        # --------------------
+        # Dynamic prompt
+        # --------------------
+
+        if len(context.strip()) > 50:
+
+            prompt=f"""
+
+You are an AI Assistant with PDF-RAG support.
+
+Rules:
+
+1. Use retrieved PDF content FIRST.
+2. Improve answer with your own Gemini knowledge.
+3. Add examples when useful.
+4. Format output nicely:
+   - headings
+   - bullet points
+   - code blocks
+5. Never say:
+   "I cannot answer because context does not contain information."
+
+Retrieved PDF Context:
 
 {context}
 
+
+User Question:
+
+{query}
+
+
+Generate a complete answer.
+
+"""
+
+        else:
+
+            prompt=f"""
+
+You are an AI coding assistant.
+
+No useful PDF context was found.
+
+Answer using your own knowledge.
+
+Use markdown:
+
+- headings
+- lists
+- examples
+- code blocks
 
 Question:
 
 {query}
 
-
-Explain clearly.
-Give examples if needed.
 """
 
 
+        # --------------------
+        # Gemini generation
+        # --------------------
 
-    response=model.generate_content(
-        prompt
-    )
+        response=model.generate_content(
+            prompt
+        )
 
 
-    return {
+        answer=response.text
 
-        "answer":
-        response.text,
 
-        "sources":[
+        # --------------------
+        # Only keep sources
+        # if retrieval worked
+        # --------------------
 
-            r["source"]
+        sources=[]
 
-            for r in results
-        ]
-    }
+        if len(context.strip())>50:
+
+            sources=list(
+
+                set(
+
+                    [
+
+                        r["source"]
+
+                        for r in results
+
+                    ]
+
+                )
+
+            )
+
+
+        return{
+
+            "answer":
+            answer,
+
+            "sources":
+            sources
+
+        }
+
+
+    except ResourceExhausted:
+
+        return{
+
+            "answer":
+"""
+## Gemini rate limit reached 🚫
+
+Free API quota exceeded.
+
+Wait a few seconds and try again.
+""",
+
+            "sources":[]
+        }
+
+
+    except Exception as e:
+
+        print(
+            "\n========= ERROR ========="
+        )
+
+        print(e)
+
+        print(
+            "=========================\n"
+        )
+
+
+        return{
+
+            "answer":
+f"""
+## Error
+
+{str(e)}
+""",
+
+            "sources":[]
+        }
