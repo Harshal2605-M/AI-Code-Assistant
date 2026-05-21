@@ -1,29 +1,52 @@
-function SourceCard(){
+import { useChat }
+from "../../contexts/ChatContext"
 
-const files=[
+function SourceCard({
 
-"Operating System Notes.pdf",
+sources=[]
 
-"OS Concepts.pdf",
+}){
 
-"Computer Networking Notes.pdf"
+const {sendMessage}=useChat()
 
-]
+if(!sources || sources.length===0){
+
+return null
+
+}
+
+
+const isTerminal=
+
+document.body.innerText
+.includes(
+"AI Code Assistant"
+)
+
 
 return(
 
 <div
 style={{
 
-background:"#111827",
+background:
+isTerminal
+?"#020202"
+:"#111827",
 
-border:"1px solid #1E293B",
+border:
+isTerminal
+?"1px solid rgba(0,100,0,.45)"
+:"1px solid #1E293B",
 
 borderRadius:"24px",
 
 padding:"22px",
 
-color:"white",
+color:
+isTerminal
+?"#39ff14"
+:"white",
 
 display:"flex",
 
@@ -33,7 +56,14 @@ gap:"16px",
 
 width:"100%",
 
-boxSizing:"border-box"
+boxSizing:"border-box",
+
+marginTop:"18px",
+
+fontFamily:
+isTerminal
+?"'Share Tech Mono', monospace"
+:"Inter"
 
 }}
 >
@@ -45,9 +75,7 @@ display:"flex",
 
 alignItems:"center",
 
-gap:"12px",
-
-marginBottom:"8px"
+gap:"12px"
 
 }}
 >
@@ -75,71 +103,107 @@ Sources
 </div>
 
 
-
 {
 
-files.map((file,index)=>(
+sources.map((source,index)=>{
+
+const fileName=
+
+typeof source==="string"
+
+?source
+
+:source.file ||
+source.source ||
+source.name ||
+"Unknown document"
+
+
+const page=
+
+source?.page ||
+source?.pageNumber ||
+1
+
+
+return(
 
 <div
 
 key={index}
 
+onClick={()=>{
+
+sendMessage(
+
+`Explain page ${page} from ${fileName}`
+
+)
+
+}}
+
 style={{
 
-background:"#1E293B",
+background:
+isTerminal
+?"#061206"
+:"#1E293B",
 
 padding:"14px",
 
 borderRadius:"14px",
+
+cursor:"pointer",
+
+transition:".3s",
+
+color:
+isTerminal
+?"#7CFC00"
+:"#CBD5E1"
+
+}}
+
+>
+
+<div
+style={{
 
 fontSize:"14px",
 
-color:"#CBD5E1"
+fontWeight:"600"
 
 }}
-
 >
 
-{file}
+📄 {fileName}
 
 </div>
 
-))
 
-}
-
-
-
-<button
-
+<div
 style={{
 
-marginTop:"10px",
+fontSize:"12px",
 
-padding:"14px",
+opacity:.7,
 
-border:"none",
-
-borderRadius:"14px",
-
-background:
-"linear-gradient(90deg,#7C3AED,#9333EA)",
-
-fontWeight:"700",
-
-fontSize:"15px",
-
-color:"white",
-
-cursor:"pointer"
+marginTop:"4px"
 
 }}
-
 >
 
-View All Sources
+Page {page}
 
-</button>
+</div>
+
+</div>
+
+)
+
+})
+
+}
 
 </div>
 

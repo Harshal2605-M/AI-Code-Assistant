@@ -1,3 +1,6 @@
+@import url(
+'https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap'
+);
 *{
 margin:0;
 padding:0;
@@ -29,6 +32,34 @@ transform:translateY(0px);
 }
 
 }
-@import url(
-'https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap'
-);
+
+@keyframes blink{
+
+0%,50%{
+opacity:1;
+}
+
+51%,100%{
+opacity:0;
+}
+
+}
+
+.cursor{
+
+display:inline-block;
+
+font-size:14px;
+
+font-weight:bold;
+
+color:#00ff88;
+
+text-shadow:
+0 0 6px #00ff88,
+0 0 10px #00ff88;
+
+animation:
+blink 1s infinite;
+
+}

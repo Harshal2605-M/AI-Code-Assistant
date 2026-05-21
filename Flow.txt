@@ -131,3 +131,220 @@ Phase 4 = distributed brains
 Build /chat API
 Send request
 Understand this flow
+
+Phase 1 — Chat Experience
+
+Priority:
+
+1. Typing animation
+
+Like:
+
+AI █
+Generating response...
+
+or token stream effect
+
+Files:
+
+ChatContext.jsx
+TerminalMessageBubble.jsx
+ModernMessageBubble.jsx
+2. Thinking state
+
+Before answer:
+
+Thinking...
+
+Searching PDFs...
+Analyzing context...
+Generating response...
+3. Auto-scroll
+
+File:
+
+ModernChatWindow.jsx
+TerminalChatWindow.jsx
+
+Use:
+
+const bottomRef=useRef()
+
+useEffect(()=>{
+bottomRef.current?.scrollIntoView({
+behavior:"smooth"
+})
+},[messages])
+4. Fade animation
+
+Install:
+
+npm i framer-motion
+
+Message:
+
+<motion.div
+initial={{
+opacity:0,
+y:15
+}}
+animate={{
+opacity:1,
+y:0
+}}
+transition={{
+duration:.3
+}}
+>
+5. Custom scrollbar
+
+Add to:
+
+index.css
+6. Terminal header
+root@ai-assistant:~$
+
+with:
+
+time
+cpu indicator
+status dot
+
+Phase 2 — Better RAG Experience
+
+Current:
+
+answer only
+
+Need:
+
+Answer
+
+Sources:
+
+PDF 1
+Page 8
+
+PDF 2
+Page 16
+
+Backend:
+
+Return:
+
+{
+"answer":response,
+"sources":[
+{
+"file":"DBMS.pdf",
+"page":5
+}
+]
+}
+
+Frontend:
+
+Use:
+
+<SourceCard/>
+Phase 3 — Streaming Responses
+
+Instead of:
+
+(wait 5 sec)
+
+full message
+
+Do:
+
+H
+He
+Hel
+Hell
+Hello
+
+Flask:
+
+yield token
+
+Frontend:
+
+read chunks
+
+using:
+
+ReadableStream
+
+Huge upgrade.
+
+Phase 4 — User System
+
+Create:
+
+backend/
+     auth.py
+
+Features:
+
+✔ login
+✔ signup
+✔ Google auth
+✔ JWT
+
+Then:
+
+chat history
+saved chats
+
+Database:
+
+MongoDB
+
+Collections:
+
+users
+messages
+sessions
+Phase 5 — SaaS Features
+
+Add:
+
+Usage Meter
+Queries left:
+
+46 / 100
+Upload PDFs
+
+Drag/drop:
+
+Drop files here
+Chat history
+
+Sidebar:
+
+Today
+Yesterday
+Last Week
+Export chat
+PDF
+Markdown
+TXT
+Phase 6 — AI Features
+
+Later:
+
+Code execution sandbox
+
+Voice mode
+
+Image upload
+
+Multi-PDF
+
+GitHub repo analysis
+
+YouTube transcript RAG
+
+Website RAG
+
+Agent mode

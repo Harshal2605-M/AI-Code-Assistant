@@ -1,9 +1,11 @@
 import ReactMarkdown from "react-markdown"
 
+import { motion } from "framer-motion"
+
 import { Prism as SyntaxHighlighter }
 from "react-syntax-highlighter"
 
-import { vscDarkPlus }
+import { atomDark }
 from "react-syntax-highlighter/dist/esm/styles/prism"
 
 
@@ -18,80 +20,110 @@ const isUser=
 role==="user"
 
 
+// preserve real fenced code
+// remove accidental inline PDF code
+
+const cleanedMessage=
+
+message
+
+.split("```")
+
+.map((part,index)=>{
+
+if(index%2!==0){
+
+return "```"+part+"```"
+
+}
+
+return part.replace(
+
+/`([a-zA-Z_][a-zA-Z0-9_:<>()[\].-]*)`/g,
+
+"$1"
+
+)
+
+})
+
+.join("")
+
+
 return(
 
-<div
+<motion.div
+
+initial={{
+
+opacity:0,
+y:20
+
+}}
+
+animate={{
+
+opacity:1,
+y:0
+
+}}
+
+transition={{
+
+duration:.35
+
+}}
+
 style={{
 
 display:"flex",
 
-justifyContent:
+flexDirection:"column",
+
+alignItems:
 isUser
 ?"flex-end"
-:"flex-start",
+:"stretch",
 
 width:"100%",
 
-marginBottom:"32px"
+marginBottom:"22px"
 
 }}
+
 >
 
-
 <div
-style={{
 
-maxWidth:
-isUser
-?"70%"
-:"850px",
+style={{
 
 width:
 isUser
-?"auto"
+?"380px"
 :"100%",
+
+background:
+isUser
+?"linear-gradient(135deg,#7c3aed,#9333ea)"
+:"#0f172a",
 
 padding:
 isUser
-?"18px 26px"
-:"28px",
+?"16px 22px"
+:"26px",
 
-borderRadius:"24px",
-
-background:
-
-isUser
-?"linear-gradient(135deg,#7C3AED,#A855F7)"
-:"#111827",
+borderRadius:"22px",
 
 border:
-
 isUser
 ?"none"
-:"1px solid #1E293B",
+:"1px solid rgba(255,255,255,.05)",
 
-boxShadow:
-"0 6px 20px rgba(0,0,0,.25)",
-
-color:"white",
-
-lineHeight:"1.9",
-
-fontSize:"17px"
+overflow:"hidden"
 
 }}
+
 >
-
-
-{
-
-isUser
-
-?
-
-message
-
-:
 
 <ReactMarkdown
 
@@ -99,13 +131,21 @@ components={{
 
 h1:({children})=>
 
-<h1 style={{
+<h1
+style={{
 
-fontSize:"34px",
-marginBottom:"18px",
-marginTop:"15px"
+fontSize:"32px",
 
-}}>
+fontWeight:"800",
+
+color:"#ffffff",
+
+margin:"0 0 18px",
+
+lineHeight:"1.3"
+
+}}
+>
 
 {children}
 
@@ -114,73 +154,166 @@ marginTop:"15px"
 
 h2:({children})=>
 
-<h2 style={{
+<h2
+style={{
 
 fontSize:"28px",
-marginTop:"25px",
-marginBottom:"15px"
 
-}}>
+fontWeight:"800",
+
+color:"#ffffff",
+
+margin:"26px 0 14px",
+
+lineHeight:"1.3"
+
+}}
+>
 
 {children}
 
 </h2>,
 
 
+
 h3:({children})=>
 
-<h3 style={{
+<h3
+style={{
 
 fontSize:"22px",
-marginTop:"20px",
-marginBottom:"10px"
 
-}}>
+fontWeight:"700",
+
+color:"#ffffff",
+
+margin:"20px 0 10px"
+
+}}
+>
 
 {children}
 
 </h3>,
 
 
+
+
 p:({children})=>
 
-<p style={{
+<p
+style={{
 
-marginBottom:"18px",
+fontSize:"17px",
 
-color:"#E5E7EB"
+lineHeight:"1.9",
 
-}}>
+marginBottom:"14px",
+
+color:"#e2e8f0"
+
+}}
+>
 
 {children}
 
 </p>,
 
 
-li:({children})=>
-
-<li style={{
-
-marginBottom:"10px"
-
-}}>
-
-{children}
-
-</li>,
-
 
 strong:({children})=>
 
-<strong style={{
+<strong
+style={{
 
-color:"#fff"
+fontWeight:"800",
 
-}}>
+color:"#ffffff"
+
+}}
+>
 
 {children}
 
 </strong>,
+
+
+
+ol:({children})=>
+
+<ol
+style={{
+
+paddingLeft:"30px",
+
+margin:"14px 0",
+
+lineHeight:"1.9",
+
+color:"#ffffff"
+
+}}
+>
+
+{children}
+
+</ol>,
+
+
+
+ul:({children})=>
+
+<ul
+style={{
+
+paddingLeft:"26px",
+
+margin:"14px 0",
+
+lineHeight:"1.9"
+
+}}
+>
+
+{children}
+
+</ul>,
+
+
+
+li:({children})=>
+
+<li
+style={{
+
+marginBottom:"12px",
+
+fontSize:"16px",
+
+lineHeight:"1.9",
+
+color:"#ffffff"
+
+}}
+>
+
+<div
+style={{
+
+color:"#ffffff",
+
+fontWeight:"600"
+
+}}
+>
+
+{children}
+
+</div>
+
+</li>,
+
+
 
 
 code({
@@ -191,29 +324,78 @@ children
 
 }){
 
+
+const text=
+String(children)
+.replace(/\n$/,"")
+
 const match=
 /language-(\w+)/.exec(
-className||""
+className || ""
 )
 
 
-if(!inline){
+
+if(inline){
+
+return(
+
+<code
+style={{
+
+background:"#1e293b",
+
+padding:"3px 8px",
+
+borderRadius:"6px",
+
+fontSize:"14px",
+
+color:"#c084fc"
+
+}}
+>
+
+{text}
+
+</code>
+
+)
+
+}
+
+
+
+if(!match){
+
+return(
+
+<span>
+
+{text}
+
+</span>
+
+)
+
+}
+
 
 return(
 
 <div
 style={{
 
-marginTop:"25px",
-
-marginBottom:"25px",
-
-borderRadius:"16px",
+margin:"18px 0",
 
 overflow:"hidden",
 
+borderRadius:"16px",
+
+background:"#111827",
+
 border:
-"1px solid #273449"
+"1px solid rgba(255,255,255,.06)"
 
 }}
 >
@@ -221,88 +403,118 @@ border:
 <div
 style={{
 
-background:"#1E293B",
-
-padding:"12px 16px",
+height:"50px",
 
 display:"flex",
 
+alignItems:"center",
+
 justifyContent:"space-between",
 
-alignItems:"center"
+padding:"0 18px",
+
+background:"#1f2937",
+
+borderBottom:
+"1px solid rgba(255,255,255,.04)"
 
 }}
 >
 
-<span>
+<span
+style={{
 
-Code
+fontSize:"14px",
+
+fontWeight:"600",
+
+color:"#d1d5db"
+
+}}
+>
+
+{match[1]}
 
 </span>
+
 
 <button
 
 onClick={()=>
-
 navigator.clipboard.writeText(
-
-String(children)
-
+text
 )
-
 }
 
 style={{
 
-background:"#7C3AED",
+background:"transparent",
 
 border:"none",
 
-padding:"8px 15px",
+cursor:"pointer",
 
-borderRadius:"8px",
+fontSize:"14px",
 
-color:"white",
-
-cursor:"pointer"
+color:"#c084fc"
 
 }}
+
 >
 
-Copy
+📋 Copy
 
 </button>
 
 </div>
 
 
+
 <SyntaxHighlighter
 
 language={
-match
-?match[1]
-:"javascript"
+match[1]
 }
 
-style={vscDarkPlus}
+style={atomDark}
+
+wrapLongLines
 
 customStyle={{
 
 margin:0,
 
-padding:"22px"
+padding:"20px",
+
+fontSize:"14px",
+
+lineHeight:"1.65",
+
+background:"#0b1120",
+
+borderRadius:0,
+
+overflowX:"auto"
+
+}}
+
+codeTagProps={{
+
+style:{
+
+fontFamily:
+"'Fira Code', monospace",
+
+textRendering:
+"optimizeLegibility"
+
+}
 
 }}
 
 >
 
-{
-
-String(children)
-
-.replace(/\n$/,"")
-
-}
+{text}
 
 </SyntaxHighlighter>
 
@@ -312,42 +524,17 @@ String(children)
 
 }
 
-
-return(
-
-<code
-style={{
-
-background:"#1E293B",
-
-padding:"4px 8px",
-
-borderRadius:"6px"
-
-}}
->
-
-{children}
-
-</code>
-
-)
-
-}
-
 }}
 
 >
 
-{message}
+{cleanedMessage}
 
 </ReactMarkdown>
 
-}
-
 </div>
 
-</div>
+</motion.div>
 
 )
 
