@@ -6,10 +6,14 @@ function ChatInput(){
 
 const [text,setText]=useState("")
 
-const {sendMessage}=useChat()
+const {
+
+sendMessage,
+isLoading
+
+}=useChat()
 
 const {theme}=useTheme()
-
 
 const isModern=
 theme.name==="modern"
@@ -18,6 +22,8 @@ theme.name==="modern"
 const handleSend=()=>{
 
 if(!text.trim()) return
+
+if(isLoading) return
 
 sendMessage(text)
 
@@ -47,6 +53,11 @@ style={{
 display:"flex",
 alignItems:"center",
 width:"100%",
+
+opacity:
+isLoading
+?.8
+:1,
 
 background:
 
@@ -79,6 +90,8 @@ isModern
 
 <input
 
+disabled={isLoading}
+
 value={text}
 
 onChange={(e)=>{
@@ -93,7 +106,13 @@ onKeyDown={handleKeyDown}
 
 placeholder={
 
-isModern
+isLoading
+
+?isModern
+?"AI is thinking..."
+:"SYSTEM BUSY..."
+
+:isModern
 ?"Ask anything..."
 :"Ask a coding question..."
 
@@ -132,6 +151,8 @@ isModern
 
 <button
 
+disabled={isLoading}
+
 onClick={handleSend}
 
 style={{
@@ -141,9 +162,12 @@ height:"72px",
 
 border:"none",
 
-cursor:"pointer",
+cursor:
+isLoading
+?"not-allowed"
+:"pointer",
 
-fontSize:"30px",
+fontSize:"24px",
 
 background:
 
@@ -156,7 +180,19 @@ color:"white"
 }}
 >
 
-➤
+{
+
+isLoading
+
+?(
+isModern
+?"..."
+:"[RUN]"
+)
+
+:"➤"
+
+}
 
 </button>
 

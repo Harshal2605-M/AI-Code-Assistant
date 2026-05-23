@@ -1,10 +1,14 @@
 import {
 createContext,
 useContext,
-useState
+useState,
+useEffect
 } from "react"
 
 import axios from "axios"
+
+import {chatStorage}
+from "../services/chatStorage"
 
 const ChatContext=createContext()
 
@@ -19,8 +23,7 @@ text:"Hello 👋 Ask anything"
 
 ]
 
-const [messages,setMessages]=
-useState(initial)
+const [messages,setMessages]=useState(initial)
 
 const [history,setHistory]=
 useState([])
@@ -28,21 +31,87 @@ useState([])
 const [chatId,setChatId]=
 useState(Date.now())
 
+const [isLoading,setIsLoading]=
+useState(false)
+
+const [activeChatId,setActiveChatId]=
+useState(null)
+
+const [loaded,setLoaded]=
+useState(false)
 
 
-const sleep=(ms)=>{
 
-return new Promise(
+/* LOAD ONCE */
 
-resolve=>
-setTimeout(
-resolve,
-ms
+useEffect(()=>{
+
+const savedHistory=
+
+chatStorage.getHistory()
+
+const savedActive=
+
+chatStorage.getActiveChat()
+
+
+setHistory(savedHistory)
+
+setActiveChatId(savedActive)
+
+
+if(savedActive){
+
+const selected=
+
+savedHistory.find(
+x=>x.id===savedActive
 )
 
+if(selected){
+
+setMessages(
+selected.messages
+)
+
+setChatId(
+selected.id
 )
 
 }
+
+}
+
+setLoaded(true)
+
+},[])
+
+
+
+/* SAVE ONLY AFTER LOAD */
+
+useEffect(()=>{
+
+if(!loaded) return
+
+chatStorage.saveHistory(
+history
+)
+
+},[history,loaded])
+
+
+
+useEffect(()=>{
+
+if(!loaded) return
+
+chatStorage.saveActiveChat(
+activeChatId
+)
+
+},[activeChatId,loaded])
+
 
 
 
@@ -50,40 +119,7 @@ const sendMessage=async(text)=>{
 
 if(!text?.trim()) return
 
-
-const isTerminal=
-
-document.body.innerText
-.includes(
-"AI Code Assistant"
-)
-
-
-
-const steps=
-
-isTerminal
-
-?[
-
-"[SCAN] Searching documents...",
-
-"[RAG] Retrieving context...",
-
-"[GEN] Generating output..."
-
-]
-
-:[
-
-"Searching PDFs...",
-
-"Analyzing context...",
-
-"Generating response..."
-
-]
-
+setIsLoading(true)
 
 
 setMessages(prev=>[
@@ -97,57 +133,13 @@ text
 
 {
 role:"assistant",
-text:steps[0]
+text:"Generating..."
 }
 
 ])
 
 
-
 try{
-
-
-await sleep(1500)
-
-
-setMessages(prev=>{
-
-const updated=[...prev]
-
-updated[updated.length-1]={
-
-role:"assistant",
-
-text:steps[1]
-
-}
-
-return [...updated]
-
-})
-
-
-
-await sleep(1300)
-
-
-setMessages(prev=>{
-
-const updated=[...prev]
-
-updated[updated.length-1]={
-
-role:"assistant",
-
-text:steps[2]
-
-}
-
-return [...updated]
-
-})
-
-
 
 const response=
 
@@ -156,26 +148,21 @@ await axios.post(
 "http://localhost:5000/chat",
 
 {
-
 message:text
-
 }
 
 )
 
 
-
 const aiResponse=
 
 response.data.answer ||
-"No response received"
-
+"No response"
 
 
 const sources=
 
 response.data.sources || []
-
 
 
 setMessages(prev=>{
@@ -184,53 +171,10 @@ const updated=[...prev]
 
 updated.pop()
 
-updated.push({
 
-role:"assistant",
+const finalMessages=[
 
-text:aiResponse,
-
-sources
-
-})
-
-return updated
-
-})
-
-
-
-
-setHistory(old=>{
-
-const filtered=
-
-old.filter(
-
-item=>item.id!==chatId
-
-)
-
-
-return[
-
-{
-
-id:chatId,
-
-title:text,
-
-messages:[
-
-...messages,
-
-{
-
-role:"user",
-
-text
-
-},
+...updated,
 
 {
 
@@ -244,19 +188,50 @@ sources
 
 ]
 
+
+/* FIXED PART */
+
+setHistory(old=>{
+
+const newHistory=[
+
+{
+
+id:chatId,
+
+title:text,
+
+messages:finalMessages
+
 },
 
-...filtered
+...old.filter(
 
-].slice(0,6)
+x=>x.id!==chatId
+
+)
+
+].slice(0,20)
+
+
+return newHistory
 
 })
 
 
-}catch(error){
+setActiveChatId(
+chatId
+)
+
+return finalMessages
+
+})
+
+}
+
+catch(error){
 
 console.log(error)
-
 
 setMessages(prev=>{
 
@@ -278,6 +253,12 @@ return updated
 
 }
 
+finally{
+
+setIsLoading(false)
+
+}
+
 }
 
 
@@ -292,14 +273,15 @@ chat=>chat.id===id
 
 )
 
-
 if(selected){
 
 setMessages(
-
 selected.messages
-
 )
+
+setChatId(id)
+
+setActiveChatId(id)
 
 }
 
@@ -311,11 +293,11 @@ const clearChat=()=>{
 
 setMessages(initial)
 
-setChatId(
+const newId=Date.now()
 
-Date.now()
+setChatId(newId)
 
-)
+setActiveChatId(null)
 
 }
 
@@ -328,14 +310,12 @@ return(
 value={{
 
 messages,
-
 sendMessage,
-
 clearChat,
-
 history,
-
-loadChat
+loadChat,
+isLoading,
+activeChatId
 
 }}
 

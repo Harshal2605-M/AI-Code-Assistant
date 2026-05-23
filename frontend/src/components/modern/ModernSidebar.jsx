@@ -4,17 +4,16 @@ from "../../contexts/ThemeContext"
 import {useChat}
 from "../../contexts/ChatContext"
 
-
 function ModernSidebar(){
 
-const {toggleTheme}=
-useTheme()
+const {toggleTheme}=useTheme()
 
 const {
 
 clearChat,
 history,
-loadChat
+loadChat,
+activeChatId
 
 }=useChat()
 
@@ -25,11 +24,9 @@ return(
 style={{
 
 width:"300px",
-
 height:"100vh",
 
-background:
-"#0F172A",
+background:"#0F172A",
 
 padding:"28px",
 
@@ -44,8 +41,6 @@ color:"white"
 
 }}
 >
-
-{/* Header */}
 
 <div
 style={{
@@ -65,7 +60,9 @@ marginBottom:"30px"
 style={{
 
 fontSize:"28px",
+
 fontWeight:"700",
+
 margin:0
 
 }}
@@ -74,7 +71,6 @@ margin:0
 ⚡ AI Assistant
 
 </h1>
-
 
 <button
 
@@ -101,9 +97,6 @@ cursor:"pointer"
 </div>
 
 
-
-{/* New Chat */}
-
 <button
 
 onClick={clearChat}
@@ -121,13 +114,13 @@ background:
 
 color:"white",
 
-fontSize:"24px",
+fontSize:"18px",
 
 fontWeight:"600",
 
 cursor:"pointer",
 
-marginBottom:"40px"
+marginBottom:"30px"
 
 }}
 
@@ -142,16 +135,18 @@ marginBottom:"40px"
 <div
 style={{
 
-fontSize:"14px",
+fontSize:"13px",
 
-opacity:.7,
+opacity:.6,
 
-marginBottom:"18px"
+marginBottom:"18px",
+
+letterSpacing:"1px"
 
 }}
 >
 
-RECENT CHATS
+TODAY
 
 </div>
 
@@ -168,25 +163,25 @@ overflowY:"auto"
 
 {
 
-history.length===0?
+history.length===0
 
-(
+?
 
 <div
 style={{
 
-opacity:.5,
+opacity:.45,
 
-fontSize:"14px"
+fontSize:"14px",
+
+padding:"20px"
 
 }}
 >
 
-No chats yet
+No recent chats
 
 </div>
-
-)
 
 :
 
@@ -200,23 +195,39 @@ onClick={()=>loadChat(chat.id)}
 
 style={{
 
-padding:"18px",
+padding:"16px",
 
-marginBottom:"14px",
+marginBottom:"10px",
 
-background:"#1E2A44",
+background:
 
-borderRadius:"20px",
+activeChatId===chat.id
+?"#2A3757"
+:"#1E2A44",
+
+border:
+
+activeChatId===chat.id
+?"1px solid #7C3AED"
+:"1px solid transparent",
+
+borderRadius:"18px",
 
 cursor:"pointer",
 
-transition:"0.3s"
+transition:".3s",
+
+whiteSpace:"nowrap",
+
+overflow:"hidden",
+
+textOverflow:"ellipsis"
 
 }}
 
 >
 
-{chat.title}
+💬 {chat.title}
 
 </div>
 
@@ -227,7 +238,6 @@ transition:"0.3s"
 </div>
 
 
-
 <div
 style={{
 
@@ -236,9 +246,7 @@ marginTop:"auto",
 paddingTop:"20px",
 
 borderTop:
-"1px solid #23304E",
-
-fontSize:"18px"
+"1px solid #23304E"
 
 }}
 >

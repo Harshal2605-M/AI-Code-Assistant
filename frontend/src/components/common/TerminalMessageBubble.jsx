@@ -355,7 +355,7 @@ return(
 <span
 style={{
 
-color:"#7CFC00",
+color:"#32CD32",
 
 fontWeight:"600",
 
@@ -363,7 +363,9 @@ background:"transparent",
 
 padding:0,
 
-fontSize:"13px"
+fontSize:"13px",
+
+lineHeight:"1.5"
 
 }}
 >

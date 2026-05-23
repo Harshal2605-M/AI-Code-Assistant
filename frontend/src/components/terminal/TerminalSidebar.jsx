@@ -11,8 +11,9 @@ const {toggleTheme}=useTheme()
 const {
 
 clearChat,
-history,
-loadChat
+history=[],
+loadChat,
+activeChatId=null
 
 }=useChat()
 
@@ -120,7 +121,7 @@ marginBottom:"15px"
 }}
 >
 
-TODAY
+TODAY.LOG
 
 </div>
 
@@ -169,9 +170,17 @@ style={{
 
 padding:"14px",
 
-background:"#171717",
+background:
 
-border:"1px solid #262626",
+activeChatId===chat.id
+?"#061206"
+:"#171717",
+
+border:
+
+activeChatId===chat.id
+?"1px solid #39FF14"
+:"1px solid #262626",
 
 borderRadius:"8px",
 
@@ -179,13 +188,19 @@ color:"#FF8C00",
 
 cursor:"pointer",
 
-marginBottom:"12px"
+marginBottom:"12px",
+
+whiteSpace:"nowrap",
+overflow:"hidden",
+textOverflow:"ellipsis",
+
+transition:"0.25s"
 
 }}
 
 >
 
-{chat.title}
+&gt; {chat.title}
 
 </div>
 

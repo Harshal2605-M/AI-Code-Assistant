@@ -370,7 +370,13 @@ if(!match){
 
 return(
 
-<span>
+<span
+style={{
+
+color:"#e2e8f0"
+
+}}
+>
 
 {text}
 
