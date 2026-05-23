@@ -1,3 +1,6 @@
+import {useState}
+from "react"
+
 import {useTheme}
 from "../../contexts/ThemeContext"
 
@@ -6,6 +9,9 @@ from "../../contexts/ChatContext"
 
 function TerminalSidebar(){
 
+const [search,setSearch]=
+useState("")
+
 const {toggleTheme}=useTheme()
 
 const {
@@ -13,9 +19,25 @@ const {
 clearChat,
 history=[],
 loadChat,
+deleteChat,
 activeChatId=null
 
 }=useChat()
+
+
+const filteredHistory=
+
+history.filter(chat=>
+
+chat.title
+.toLowerCase()
+.includes(
+
+search.toLowerCase()
+
+)
+
+)
 
 
 return(
@@ -35,8 +57,6 @@ borderRight:"1px solid #262626"
 
 }}
 >
-
-{/* Header */}
 
 <div
 style={{
@@ -99,7 +119,7 @@ padding:"14px",
 color:"#39FF14",
 cursor:"pointer",
 borderRadius:"8px",
-marginBottom:"25px"
+marginBottom:"20px"
 
 }}
 
@@ -108,6 +128,52 @@ marginBottom:"25px"
 + New Chat
 
 </button>
+
+
+
+<div
+style={{marginBottom:"20px"}}
+>
+
+<input
+
+value={search}
+
+onChange={(e)=>
+
+setSearch(
+e.target.value
+)
+
+}
+
+placeholder="Search..."
+
+style={{
+
+width:"100%",
+
+padding:"12px",
+
+background:"#171717",
+
+color:"#39FF14",
+
+border:
+"1px solid #262626",
+
+outline:"none",
+
+boxSizing:"border-box",
+
+fontFamily:"monospace"
+
+}}
+
+/>
+
+</div>
+
 
 
 
@@ -138,35 +204,31 @@ overflowY:"auto"
 
 {
 
-history.length===0 ?
-
-(
+filteredHistory.length===0 ?
 
 <div
-style={{
-
-color:"#777"
-
-}}
+style={{color:"#777"}}
 >
 
 No chats
 
 </div>
 
-)
-
 :
 
-history.map(chat=>(
+filteredHistory.map(chat=>(
 
 <div
 
 key={chat.id}
 
-onClick={()=>loadChat(chat.id)}
-
 style={{
+
+display:"flex",
+
+justifyContent:"space-between",
+
+alignItems:"center",
 
 padding:"14px",
 
@@ -184,23 +246,65 @@ activeChatId===chat.id
 
 borderRadius:"8px",
 
-color:"#FF8C00",
+marginBottom:"12px"
+
+}}
+
+>
+
+<div
+
+onClick={()=>
+
+loadChat(chat.id)
+
+}
+
+style={{
+
+flex:1,
 
 cursor:"pointer",
 
-marginBottom:"12px",
-
 whiteSpace:"nowrap",
+
 overflow:"hidden",
+
 textOverflow:"ellipsis",
 
-transition:"0.25s"
+color:"#FF8C00"
 
 }}
 
 >
 
 &gt; {chat.title}
+
+</div>
+
+
+
+<div
+
+onClick={(e)=>{
+
+e.stopPropagation()
+
+deleteChat(chat.id)
+
+}}
+
+style={{
+
+cursor:"pointer"
+
+}}
+
+>
+
+🗑
+
+</div>
 
 </div>
 

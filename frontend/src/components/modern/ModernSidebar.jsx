@@ -1,3 +1,6 @@
+import {useState}
+from "react"
+
 import {useTheme}
 from "../../contexts/ThemeContext"
 
@@ -6,6 +9,9 @@ from "../../contexts/ChatContext"
 
 function ModernSidebar(){
 
+const [search,setSearch]=
+useState("")
+
 const {toggleTheme}=useTheme()
 
 const {
@@ -13,9 +19,25 @@ const {
 clearChat,
 history,
 loadChat,
+deleteChat,
 activeChatId
 
 }=useChat()
+
+
+const filteredHistory=
+
+history.filter(chat=>
+
+chat.title
+.toLowerCase()
+.includes(
+
+search.toLowerCase()
+
+)
+
+)
 
 
 return(
@@ -72,6 +94,7 @@ margin:0
 
 </h1>
 
+
 <button
 
 onClick={toggleTheme}
@@ -97,6 +120,7 @@ cursor:"pointer"
 </div>
 
 
+
 <button
 
 onClick={clearChat}
@@ -120,7 +144,7 @@ fontWeight:"600",
 
 cursor:"pointer",
 
-marginBottom:"30px"
+marginBottom:"20px"
 
 }}
 
@@ -129,6 +153,55 @@ marginBottom:"30px"
 + New Chat
 
 </button>
+
+
+
+<div
+style={{
+
+marginBottom:"20px"
+
+}}
+>
+
+<input
+
+value={search}
+
+onChange={(e)=>
+
+setSearch(
+e.target.value
+)
+
+}
+
+placeholder="🔍 Search chats..."
+
+style={{
+
+width:"100%",
+
+padding:"14px",
+
+border:"none",
+
+outline:"none",
+
+borderRadius:"14px",
+
+background:"#1E2A44",
+
+color:"white",
+
+boxSizing:"border-box"
+
+}}
+
+/>
+
+</div>
+
 
 
 
@@ -151,6 +224,7 @@ TODAY
 </div>
 
 
+
 <div
 style={{
 
@@ -163,7 +237,7 @@ overflowY:"auto"
 
 {
 
-history.length===0
+filteredHistory.length===0
 
 ?
 
@@ -171,8 +245,6 @@ history.length===0
 style={{
 
 opacity:.45,
-
-fontSize:"14px",
 
 padding:"20px"
 
@@ -185,15 +257,19 @@ No recent chats
 
 :
 
-history.map(chat=>(
+filteredHistory.map(chat=>(
 
 <div
 
 key={chat.id}
 
-onClick={()=>loadChat(chat.id)}
-
 style={{
+
+display:"flex",
+
+justifyContent:"space-between",
+
+alignItems:"center",
 
 padding:"16px",
 
@@ -211,11 +287,25 @@ activeChatId===chat.id
 ?"1px solid #7C3AED"
 :"1px solid transparent",
 
-borderRadius:"18px",
+borderRadius:"18px"
+
+}}
+
+>
+
+<div
+
+onClick={()=>
+
+loadChat(chat.id)
+
+}
+
+style={{
+
+flex:1,
 
 cursor:"pointer",
-
-transition:".3s",
 
 whiteSpace:"nowrap",
 
@@ -231,11 +321,40 @@ textOverflow:"ellipsis"
 
 </div>
 
+
+
+<div
+
+onClick={(e)=>{
+
+e.stopPropagation()
+
+deleteChat(chat.id)
+
+}}
+
+style={{
+
+cursor:"pointer",
+
+fontSize:"16px"
+
+}}
+
+>
+
+🗑
+
+</div>
+
+</div>
+
 ))
 
 }
 
 </div>
+
 
 
 <div

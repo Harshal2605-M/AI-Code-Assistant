@@ -1,5 +1,4 @@
 import ReactMarkdown from "react-markdown"
-
 import { motion } from "framer-motion"
 
 import { Prism as SyntaxHighlighter }
@@ -19,9 +18,6 @@ message
 const isUser=
 role==="user"
 
-
-// preserve real fenced code
-// remove accidental inline PDF code
 
 const cleanedMessage=
 
@@ -57,7 +53,7 @@ return(
 initial={{
 
 opacity:0,
-y:20
+y:15
 
 }}
 
@@ -70,7 +66,7 @@ y:0
 
 transition={{
 
-duration:.35
+duration:.3
 
 }}
 
@@ -87,7 +83,7 @@ isUser
 
 width:"100%",
 
-marginBottom:"22px"
+marginBottom:"18px"
 
 }}
 
@@ -99,8 +95,18 @@ style={{
 
 width:
 isUser
-?"380px"
+?"340px"
 :"100%",
+
+maxWidth:
+isUser
+?"340px"
+:"1250px",
+
+margin:
+isUser
+?"0"
+:"0 auto",
 
 background:
 isUser
@@ -110,7 +116,7 @@ isUser
 padding:
 isUser
 ?"16px 22px"
-:"26px",
+:"30px 40px",
 
 borderRadius:"22px",
 
@@ -134,13 +140,13 @@ h1:({children})=>
 <h1
 style={{
 
-fontSize:"32px",
+fontSize:"28px",
 
 fontWeight:"800",
 
-color:"#ffffff",
-
 margin:"0 0 18px",
+
+color:"#fff",
 
 lineHeight:"1.3"
 
@@ -157,15 +163,19 @@ h2:({children})=>
 <h2
 style={{
 
-fontSize:"28px",
+fontSize:"20px",
 
-fontWeight:"800",
+fontWeight:"700",
 
-color:"#ffffff",
+color:"#fff",
 
-margin:"26px 0 14px",
+margin:"28px 0 14px",
 
-lineHeight:"1.3"
+padding:0,
+
+lineHeight:"1.4",
+
+textAlign:"left"
 
 }}
 >
@@ -175,19 +185,20 @@ lineHeight:"1.3"
 </h2>,
 
 
-
 h3:({children})=>
 
 <h3
 style={{
 
-fontSize:"22px",
+fontSize:"18px",
 
 fontWeight:"700",
 
-color:"#ffffff",
+color:"#fff",
 
-margin:"20px 0 10px"
+margin:"22px 0 12px",
+
+lineHeight:"1.4"
 
 }}
 >
@@ -197,20 +208,22 @@ margin:"20px 0 10px"
 </h3>,
 
 
-
-
 p:({children})=>
 
 <p
 style={{
 
-fontSize:"17px",
+fontSize:"15px",
 
-lineHeight:"1.9",
+lineHeight:"1.8",
 
-marginBottom:"14px",
+margin:"0 0 14px 0",
 
-color:"#e2e8f0"
+padding:0,
+
+color:"#e2e8f0",
+
+textAlign:"left"
 
 }}
 >
@@ -220,15 +233,14 @@ color:"#e2e8f0"
 </p>,
 
 
-
 strong:({children})=>
 
 <strong
 style={{
 
-fontWeight:"800",
+fontWeight:"700",
 
-color:"#ffffff"
+color:"#fff"
 
 }}
 >
@@ -238,19 +250,18 @@ color:"#ffffff"
 </strong>,
 
 
-
 ol:({children})=>
 
 <ol
 style={{
 
-paddingLeft:"30px",
+paddingLeft:"22px",
 
-margin:"14px 0",
+margin:"12px 0",
 
-lineHeight:"1.9",
+lineHeight:"1.8",
 
-color:"#ffffff"
+color:"#fff"
 
 }}
 >
@@ -260,17 +271,16 @@ color:"#ffffff"
 </ol>,
 
 
-
 ul:({children})=>
 
 <ul
 style={{
 
-paddingLeft:"26px",
+margin:"12px 0",
 
-margin:"14px 0",
+paddingLeft:"22px",
 
-lineHeight:"1.9"
+color:"#fff"
 
 }}
 >
@@ -280,40 +290,27 @@ lineHeight:"1.9"
 </ul>,
 
 
-
 li:({children})=>
 
 <li
 style={{
 
-marginBottom:"12px",
+marginBottom:"10px",
 
-fontSize:"16px",
+fontSize:"15px",
 
-lineHeight:"1.9",
+lineHeight:"1.8",
 
-color:"#ffffff"
+paddingLeft:"0px",
 
-}}
->
-
-<div
-style={{
-
-color:"#ffffff",
-
-fontWeight:"600"
+color:"#fff"
 
 }}
 >
 
 {children}
 
-</div>
-
 </li>,
-
-
 
 
 code({
@@ -323,7 +320,6 @@ className,
 children
 
 }){
-
 
 const text=
 String(children)
@@ -335,7 +331,6 @@ className || ""
 )
 
 
-
 if(inline){
 
 return(
@@ -345,11 +340,11 @@ style={{
 
 background:"#1e293b",
 
-padding:"3px 8px",
+padding:"2px 6px",
 
-borderRadius:"6px",
+borderRadius:"5px",
 
-fontSize:"14px",
+fontSize:"13px",
 
 color:"#c084fc"
 
@@ -365,18 +360,11 @@ color:"#c084fc"
 }
 
 
-
 if(!match){
 
 return(
 
-<span
-style={{
-
-color:"#e2e8f0"
-
-}}
->
+<span>
 
 {text}
 
@@ -396,12 +384,12 @@ margin:"18px 0",
 
 overflow:"hidden",
 
-borderRadius:"16px",
+borderRadius:"14px",
 
 background:"#111827",
 
 border:
-"1px solid rgba(255,255,255,.06)"
+"1px solid rgba(255,255,255,.05)"
 
 }}
 >
@@ -409,7 +397,7 @@ border:
 <div
 style={{
 
-height:"50px",
+height:"46px",
 
 display:"flex",
 
@@ -419,10 +407,7 @@ justifyContent:"space-between",
 
 padding:"0 18px",
 
-background:"#1f2937",
-
-borderBottom:
-"1px solid rgba(255,255,255,.04)"
+background:"#1f2937"
 
 }}
 >
@@ -430,7 +415,7 @@ borderBottom:
 <span
 style={{
 
-fontSize:"14px",
+fontSize:"13px",
 
 fontWeight:"600",
 
@@ -460,7 +445,7 @@ border:"none",
 
 cursor:"pointer",
 
-fontSize:"14px",
+fontSize:"13px",
 
 color:"#c084fc"
 
@@ -475,12 +460,9 @@ color:"#c084fc"
 </div>
 
 
-
 <SyntaxHighlighter
 
-language={
-match[1]
-}
+language={match[1]}
 
 style={atomDark}
 
@@ -490,31 +472,13 @@ customStyle={{
 
 margin:0,
 
-padding:"20px",
+padding:"16px",
 
-fontSize:"14px",
+fontSize:"13px",
 
-lineHeight:"1.65",
+lineHeight:"1.6",
 
-background:"#0b1120",
-
-borderRadius:0,
-
-overflowX:"auto"
-
-}}
-
-codeTagProps={{
-
-style:{
-
-fontFamily:
-"'Fira Code', monospace",
-
-textRendering:
-"optimizeLegibility"
-
-}
+background:"#0b1120"
 
 }}
 

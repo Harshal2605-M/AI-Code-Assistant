@@ -13,7 +13,6 @@ from "./components/terminal/TerminalSidebar"
 import TerminalChatWindow
 from "./components/terminal/TerminalChatWindow"
 
-
 function App(){
 
 const {theme}=useTheme()
@@ -25,7 +24,13 @@ style={{
 
 display:"flex",
 
-height:"100vh"
+height:"100dvh",
+
+width:"100vw",
+
+overflow:"hidden",
+
+background:"#050816"
 
 }}
 >
@@ -39,7 +44,6 @@ theme.name==="terminal"
 <>
 
 <TerminalSidebar/>
-
 <TerminalChatWindow/>
 
 </>
@@ -49,7 +53,6 @@ theme.name==="terminal"
 <>
 
 <ModernSidebar/>
-
 <ModernChatWindow/>
 
 </>

@@ -199,7 +199,13 @@ const newHistory=[
 
 id:chatId,
 
-title:text,
+title:
+
+text.length>35
+
+?text.slice(0,35)+"..."
+
+:text,
 
 messages:finalMessages
 
@@ -212,7 +218,6 @@ x=>x.id!==chatId
 )
 
 ].slice(0,20)
-
 
 return newHistory
 
@@ -287,7 +292,30 @@ setActiveChatId(id)
 
 }
 
+const deleteChat=(id)=>{
 
+const updated=
+
+history.filter(
+
+chat=>chat.id!==id
+
+)
+
+setHistory(updated)
+
+
+if(activeChatId===id){
+
+setMessages(initial)
+
+setActiveChatId(null)
+
+setChatId(Date.now())
+
+}
+
+}
 
 const clearChat=()=>{
 
@@ -314,6 +342,7 @@ sendMessage,
 clearChat,
 history,
 loadChat,
+deleteChat,
 isLoading,
 activeChatId
 
