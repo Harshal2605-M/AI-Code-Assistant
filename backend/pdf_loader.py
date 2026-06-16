@@ -5,6 +5,10 @@ def load_all_pdfs(folder="docs"):
 
     all_text=[]
 
+    if not os.path.isabs(folder):
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        folder = os.path.join(base_dir, folder)
+
     for file in os.listdir(folder):
 
         if file.endswith(".pdf"):

@@ -13,7 +13,9 @@ from retriever import retrieve
 # Load environment
 # ==========================
 
-load_dotenv()
+base_dir = os.path.dirname(os.path.abspath(__file__))
+dotenv_path = os.path.join(base_dir, ".env")
+load_dotenv(dotenv_path)
 
 genai.configure(
     api_key=os.getenv(
