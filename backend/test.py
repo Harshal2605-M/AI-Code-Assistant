@@ -1,26 +1,26 @@
-from rag_engine import generate_answer
+from qdrant_db import client, COLLECTION_NAME
 
-
-result=generate_answer(
-
-"Explain inheritance"
-
+records, _ = client.scroll(
+    collection_name=COLLECTION_NAME,
+    limit=5
 )
 
+for record in records:
 
-print(
-"\nANSWER:\n"
-)
+    print()
 
-print(
-result["answer"]
-)
+    print("ID:", record.id)
 
+    print("Source:",
+          record.payload["source"])
 
-print(
-"\nSOURCES:\n"
-)
+    print("Page:",
+          record.payload["page"])
 
-print(
-result["sources"]
-)
+    print()
+
+    print(record.payload["text"][:300])
+
+    print("="*80)
+
+client.close()

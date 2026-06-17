@@ -5,7 +5,13 @@ from google.api_core.exceptions import ResourceExhausted
 
 from pdf_loader import load_all_pdfs
 from chunker import create_chunks
-from vector_store import create_embeddings
+from vector_store import store_embeddings
+from hash_utils import compute_file_hash
+from index_registry import (
+    is_indexed,
+    mark_indexed
+)
+from qdrant_db import get_next_chunk_id
 from retriever import retrieve
 
 
@@ -28,46 +34,99 @@ genai.configure(
 # Load PDFs
 # ==========================
 
-print(
-    "\nLoading PDFs..."
-)
+print("\nChecking PDFs...")
 
 docs = load_all_pdfs()
 
-all_chunks=[]
+all_chunks = []
+
+chunk_id = get_next_chunk_id()
 
 
 for doc in docs:
 
-    chunks=create_chunks(
+    filepath = os.path.join(
+        base_dir,
+        "docs",
+        doc["source"]
+    )
+
+    file_hash = compute_file_hash(
+        filepath
+    )
+
+
+    if is_indexed(file_hash):
+
+        print(
+            f"Skipping {doc['source']} (already indexed)"
+        )
+
+        continue
+
+
+    print(
+        f"Indexing {doc['source']}"
+    )
+
+
+    chunks = create_chunks(
         doc["text"]
     )
+
 
     for chunk in chunks:
 
         all_chunks.append({
 
+            "chunk_id":
+            chunk_id,
+
             "source":
             doc["source"],
+
+            "page":
+            doc["page"],
 
             "text":
             chunk
 
         })
 
-
-print(
-    "\nCreating embeddings..."
-)
-
-vectors=create_embeddings(
-    all_chunks
-)
+        chunk_id += 1
 
 
-print(
-    f"\nTotal Chunks: {len(all_chunks)}"
-)
+    mark_indexed(
+
+        file_hash,
+
+        doc["source"]
+
+    )
+
+if all_chunks:
+
+    print(
+        "\nGenerating embeddings..."
+    )
+
+    store_embeddings(
+        all_chunks
+    )
+
+    print(
+
+        f"\nNew chunks added: {len(all_chunks)}"
+
+    )
+
+else:
+
+    print(
+
+        "\nNo new PDFs to index."
+
+        )
 
 
 # ==========================
@@ -93,9 +152,7 @@ def generate_answer(query):
 
         results=retrieve(
 
-            query,
-
-            vectors
+            query
 
         )
 

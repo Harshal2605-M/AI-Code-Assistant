@@ -1,79 +1,52 @@
-import numpy as np
 from sentence_transformers import SentenceTransformer
+
+from qdrant_db import (
+    client,
+    COLLECTION_NAME
+)
 
 model = SentenceTransformer(
     "all-MiniLM-L6-v2"
 )
 
 
-def cosine(a,b):
-
-    return np.dot(
-        a,b
-    ) / (
-
-        np.linalg.norm(a)
-
-        *
-
-        np.linalg.norm(b)
-    )
-
-
-
 def retrieve(
     query,
-    vectors,
     top_k=3
 ):
 
     query_embedding = model.encode(
         query
+    ).tolist()
+
+    results = client.query_points(
+
+        collection_name=COLLECTION_NAME,
+
+        query=query_embedding,
+
+        limit=top_k
+
     )
 
-    scores=[]
+    retrieved = []
 
+    for point in results.points:
 
-    for item in vectors:
-
-        score=cosine(
-
-            query_embedding,
-
-            item[
-                "embedding"
-            ]
-
-        )
-
-        scores.append({
+        retrieved.append({
 
             "score":
-            score,
+            point.score,
 
             "source":
-            item[
-                "source"
-            ],
+            point.payload["source"],
+
+            "page":
+            point.payload["page"],
 
             "text":
-            item[
-                "text"
-            ]
+            point.payload["text"]
 
         })
 
-
-    scores=sorted(
-
-        scores,
-
-        key=lambda x:
-        x["score"],
-
-        reverse=True
-
-    )
-
-
-    return scores[:top_k]
+    return retrieved

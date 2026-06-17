@@ -1,19 +1,27 @@
 import os
 from pypdf import PdfReader
 
+
 def load_all_pdfs(folder="docs"):
 
-    all_text=[]
+    documents = []
 
     if not os.path.isabs(folder):
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-        folder = os.path.join(base_dir, folder)
+
+        base_dir = os.path.dirname(
+            os.path.abspath(__file__)
+        )
+
+        folder = os.path.join(
+            base_dir,
+            folder
+        )
 
     for file in os.listdir(folder):
 
         if file.endswith(".pdf"):
 
-            path=os.path.join(
+            path = os.path.join(
                 folder,
                 file
             )
@@ -23,26 +31,25 @@ def load_all_pdfs(folder="docs"):
                 file
             )
 
-            reader=PdfReader(path)
+            reader = PdfReader(path)
 
-            text=""
+            for page_num, page in enumerate(
+                reader.pages,
+                start=1
+            ):
 
-            for page in reader.pages:
-
-                content=page.extract_text()
+                content = page.extract_text()
 
                 if content:
 
-                    text += content+"\n"
+                    documents.append({
 
+                        "source": file,
 
-            all_text.append({
+                        "page": page_num,
 
-                "source":file,
+                        "text": content
 
-                "text":text
+                    })
 
-            })
-
-
-    return all_text
+    return documents
