@@ -3,13 +3,21 @@ from dotenv import load_dotenv
 import google.generativeai as genai
 from google.api_core.exceptions import ResourceExhausted
 
-from pdf_loader import load_all_pdfs
+from pdf_loader import (
+    list_pdf_files,
+    load_pdf
+)
 from chunker import create_chunks
 from vector_store import store_embeddings
 from hash_utils import compute_file_hash
 from index_registry import (
     is_indexed,
     mark_indexed
+)
+from conversation_memory import (
+
+    add_message,
+    get_history
 )
 from qdrant_db import get_next_chunk_id
 from retriever import retrieve
@@ -36,97 +44,91 @@ genai.configure(
 
 print("\nChecking PDFs...")
 
-docs = load_all_pdfs()
-
-all_chunks = []
+pdf_files = list_pdf_files()
 
 chunk_id = get_next_chunk_id()
 
-
-for doc in docs:
+for filename in pdf_files:
 
     filepath = os.path.join(
         base_dir,
         "docs",
-        doc["source"]
+        filename
     )
 
     file_hash = compute_file_hash(
         filepath
     )
 
-
     if is_indexed(file_hash):
 
         print(
-            f"Skipping {doc['source']} (already indexed)"
+            f"Skipping {filename} (already indexed)"
         )
 
         continue
 
-
     print(
-        f"Indexing {doc['source']}"
+        f"Indexing {filename}"
     )
 
-
-    chunks = create_chunks(
-        doc["text"]
+    docs = load_pdf(
+        filename
     )
 
+    all_chunks = []
 
-    for chunk in chunks:
+    for doc in docs:
 
-        all_chunks.append({
+        chunks = create_chunks(
+            doc["text"]
+        )
 
-            "chunk_id":
-            chunk_id,
+        for chunk in chunks:
 
-            "source":
-            doc["source"],
+            all_chunks.append({
 
-            "page":
-            doc["page"],
+                "chunk_id":
+                chunk_id,
 
-            "text":
-            chunk
+                "source":
+                doc["source"],
 
-        })
+                "page":
+                doc["page"],
 
-        chunk_id += 1
+                "text":
+                chunk
+
+            })
+
+            chunk_id += 1
+
+
+    if all_chunks:
+
+        print(
+            "\nGenerating embeddings..."
+        )
+
+        store_embeddings(
+            all_chunks
+        )
+
+        print(
+
+            f"Added {len(all_chunks)} chunks."
+
+        )
 
 
     mark_indexed(
 
         file_hash,
 
-        doc["source"]
+        filename
 
     )
-
-if all_chunks:
-
-    print(
-        "\nGenerating embeddings..."
-    )
-
-    store_embeddings(
-        all_chunks
-    )
-
-    print(
-
-        f"\nNew chunks added: {len(all_chunks)}"
-
-    )
-
-else:
-
-    print(
-
-        "\nNo new PDFs to index."
-
-        )
 
 
 # ==========================
@@ -142,22 +144,84 @@ model=genai.GenerativeModel(
 # Main Answer Function
 # ==========================
 
-def generate_answer(query):
+def generate_answer(query, chat_id):
 
     try:
 
         # --------------------
-        # Retrieve PDF context
+        # Save user message
         # --------------------
 
-        results=retrieve(
+        # --------------------
+        # Load history
+        # --------------------
+
+        history = get_history(
+            chat_id
+        )
+
+
+        history_text = ""
+
+        for msg in history:
+
+            history_text += (
+
+                f"{msg['role'].capitalize()}: "
+
+                f"{msg['content']}\n\n"
+
+            )
+
+
+        # --------------------
+        # Save current user query
+        # --------------------
+
+        add_message(
+
+            chat_id,
+
+            "user",
 
             query
 
         )
 
+        # --------------------
+        # Retrieval query
+        # --------------------
 
-        context="\n\n".join(
+        recent_history = history[-4:]
+
+        retrieval_query = ""
+
+        for msg in recent_history:
+
+            retrieval_query += (
+
+                msg["content"]
+
+                + "\n"
+
+            )
+
+        retrieval_query += query
+
+
+
+        # --------------------
+        # Retrieve PDF context
+        # --------------------
+
+        results = retrieve(
+
+            retrieval_query
+
+        )
+
+
+        context = "\n\n".join(
 
             [
 
@@ -171,14 +235,18 @@ def generate_answer(query):
 
 
         print(
+
             "\nRetrieved Sources:\n"
+
         )
 
 
         for r in results:
 
             print(
+
                 r["source"]
+
             )
 
 
@@ -188,14 +256,14 @@ def generate_answer(query):
 
         if len(context.strip()) > 50:
 
-            prompt=f"""
+            prompt = f"""
 
 You are an AI Assistant with PDF-RAG support.
 
 Rules:
 
 1. Use retrieved PDF content FIRST.
-2. Improve answer with your own Gemini knowledge.
+2. Improve answer with your own knowledge.
 3. Add examples when useful.
 4. Format output nicely:
    - headings
@@ -204,12 +272,18 @@ Rules:
 5. Never say:
    "I cannot answer because context does not contain information."
 
+
+Conversation History:
+
+{history_text}
+
+
 Retrieved PDF Context:
 
 {context}
 
 
-User Question:
+Current Question:
 
 {query}
 
@@ -220,7 +294,7 @@ Generate a complete answer.
 
         else:
 
-            prompt=f"""
+            prompt = f"""
 
 You are an AI coding assistant.
 
@@ -235,35 +309,55 @@ Use markdown:
 - examples
 - code blocks
 
-Question:
+
+Conversation History:
+
+{history_text}
+
+
+Current Question:
 
 {query}
 
 """
 
-
         # --------------------
         # Gemini generation
         # --------------------
 
-        response=model.generate_content(
+        response = model.generate_content(
+
             prompt
+
+        )
+
+        answer = response.text
+
+
+        # --------------------
+        # Save assistant answer
+        # --------------------
+
+        add_message(
+
+            chat_id,
+
+            "assistant",
+
+            answer[:3000]
+
         )
 
 
-        answer=response.text
-
-
         # --------------------
-        # Only keep sources
-        # if retrieval worked
+        # Sources
         # --------------------
 
-        sources=[]
+        sources = []
 
-        if len(context.strip())>50:
+        if len(context.strip()) > 50:
 
-            sources=list(
+            sources = list(
 
                 set(
 
@@ -280,12 +374,14 @@ Question:
             )
 
 
-        return{
+        return {
 
             "answer":
+
             answer,
 
             "sources":
+
             sources
 
         }
@@ -293,9 +389,10 @@ Question:
 
     except ResourceExhausted:
 
-        return{
+        return {
 
             "answer":
+
 """
 ## Gemini rate limit reached 🚫
 
@@ -304,31 +401,42 @@ Free API quota exceeded.
 Wait a few seconds and try again.
 """,
 
-            "sources":[]
+            "sources": []
+
         }
 
 
     except Exception as e:
 
         print(
-            "\n========= ERROR ========="
-        )
 
-        print(e)
+            "\n========= ERROR ========="
+
+        )
 
         print(
+
+            e
+
+        )
+
+        print(
+
             "=========================\n"
+
         )
 
 
-        return{
+        return {
 
             "answer":
+
 f"""
 ## Error
 
 {str(e)}
 """,
 
-            "sources":[]
+            "sources": []
+
         }

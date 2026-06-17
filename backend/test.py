@@ -2,25 +2,28 @@ from qdrant_db import client, COLLECTION_NAME
 
 records, _ = client.scroll(
     collection_name=COLLECTION_NAME,
-    limit=5
+    limit=3
 )
 
 for record in records:
 
-    print()
+    print("\n--------------------")
+    print("Point ID:", record.id)
 
-    print("ID:", record.id)
+    print("\nPayload:")
 
-    print("Source:",
-          record.payload["source"])
+    for key, value in record.payload.items():
 
-    print("Page:",
-          record.payload["page"])
+        if key == "text":
 
-    print()
+            print(
+                f"{key}:",
+                value[:200]
+            )
 
-    print(record.payload["text"][:300])
+        else:
 
-    print("="*80)
-
-client.close()
+            print(
+                f"{key}:",
+                value
+            )

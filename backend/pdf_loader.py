@@ -2,54 +2,69 @@ import os
 from pypdf import PdfReader
 
 
-def load_all_pdfs(folder="docs"):
+def list_pdf_files(folder="docs"):
+
+    base_dir = os.path.dirname(
+        os.path.abspath(__file__)
+    )
+
+    folder = os.path.join(
+        base_dir,
+        folder
+    )
+
+    return [
+
+        file
+
+        for file in os.listdir(folder)
+
+        if file.endswith(".pdf")
+
+    ]
+
+
+def load_pdf(
+        filename,
+        folder="docs"
+):
 
     documents = []
 
-    if not os.path.isabs(folder):
+    base_dir = os.path.dirname(
+        os.path.abspath(__file__)
+    )
 
-        base_dir = os.path.dirname(
-            os.path.abspath(__file__)
-        )
+    path = os.path.join(
+        base_dir,
+        folder,
+        filename
+    )
 
-        folder = os.path.join(
-            base_dir,
-            folder
-        )
+    print(
+        "Loading:",
+        filename
+    )
 
-    for file in os.listdir(folder):
+    reader = PdfReader(path)
 
-        if file.endswith(".pdf"):
+    for page_num, page in enumerate(
+            reader.pages,
+            start=1
+    ):
 
-            path = os.path.join(
-                folder,
-                file
-            )
+        content = page.extract_text()
 
-            print(
-                "Loading:",
-                file
-            )
+        if content:
 
-            reader = PdfReader(path)
+            documents.append({
 
-            for page_num, page in enumerate(
-                reader.pages,
-                start=1
-            ):
+                "source": filename,
 
-                content = page.extract_text()
+                "page": page_num,
 
-                if content:
+                "text": content
 
-                    documents.append({
-
-                        "source": file,
-
-                        "page": page_num,
-
-                        "text": content
-
-                    })
+            })
 
     return documents

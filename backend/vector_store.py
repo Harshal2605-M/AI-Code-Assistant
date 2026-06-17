@@ -1,32 +1,45 @@
 from sentence_transformers import SentenceTransformer
 from qdrant_client.models import PointStruct
+from datetime import datetime
 
 from qdrant_db import (
     client,
     COLLECTION_NAME
 )
 
-# Load model once
 model = SentenceTransformer(
-    "all-MiniLM-L6-v2"
+    "BAAI/bge-small-en-v1.5"
 )
 
 
 def store_embeddings(all_chunks):
 
-    print(
-        "Generating embeddings..."
+    texts = [
+
+        chunk["text"]
+
+        for chunk in all_chunks
+
+    ]
+
+    embeddings = model.encode(
+
+        texts,
+
+        batch_size=32,
+
+        show_progress_bar=True
+
     )
+
+    timestamp = datetime.now().isoformat()
 
     points = []
 
-    for chunk in all_chunks:
-
-        embedding = model.encode(
-
-            chunk["text"]
-
-        ).tolist()
+    for chunk, embedding in zip(
+            all_chunks,
+            embeddings
+    ):
 
         points.append(
 
@@ -34,7 +47,7 @@ def store_embeddings(all_chunks):
 
                 id=chunk["chunk_id"],
 
-                vector=embedding,
+                vector=embedding.tolist(),
 
                 payload={
 
@@ -44,8 +57,14 @@ def store_embeddings(all_chunks):
                     "page":
                     chunk["page"],
 
+                    "chunk_id":
+                    chunk["chunk_id"],
+
                     "text":
-                    chunk["text"]
+                    chunk["text"],
+
+                    "indexed_at":
+                    timestamp
 
                 }
 
@@ -70,13 +89,9 @@ def store_embeddings(all_chunks):
     )
 
     print(
-
-        f"Embeddings stored in Qdrant."
-
+        "Embeddings stored in Qdrant."
     )
 
     print(
-
         f"Total vectors in collection: {count_result.count}"
-
     )
