@@ -180,26 +180,35 @@ def delete_chat(chat_id):
             (
 
                 chat_id,
+            )
+        )
+
+def get_message_count(chat_id):
+
+    with connection:
+
+        with connection.cursor() as cursor:
+
+            cursor.execute(
+
+                """
+
+                SELECT COUNT(*)
+
+                FROM messages
+
+                WHERE chat_id = %s
+
+                """,
+
+                (
+
+                    chat_id,
+
+                )
 
             )
 
-        )
+            count = cursor.fetchone()[0]
 
-
-        cursor.execute(
-
-            """
-            DELETE FROM chat_sessions
-
-            WHERE chat_id = %s
-            """,
-
-            (
-
-                chat_id,
-
-            )
-
-        )
-
-    connection.commit()
+    return count

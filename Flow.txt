@@ -348,3 +348,248 @@ YouTube transcript RAG
 Website RAG
 
 Agent mode
+
+
+
+
+Final Vision
+                User
+                  |
+          +-------+--------+
+          |                |
+ Conversation         Session Memory
+    Memory                 |
+          |                |
+          +--------+-------+
+                   |
+             Query Understanding
+                   |
+         +---------+---------+
+         |                   |
+      Codebase RAG       PDF RAG
+         |                   |
+         +---------+---------+
+                   |
+             Hybrid Search
+           (BM25 + Vector)
+                   |
+               Reranker
+                   |
+             Parent Chunks
+                   |
+                 Gemini
+                   |
+              Final Answer
+Phase 3 (Current)
+
+These give the biggest quality improvements.
+
+Phase 3.1 : Conversation Memory ⭐⭐⭐⭐⭐
+
+Needed for:
+
+User:
+Write merge sort.
+
+User:
+Optimize it.
+
+User:
+Add comments.
+
+Without memory:
+
+Optimize what?
+
+Phase 3.2 : Session Memory ⭐⭐⭐⭐⭐
+
+Store:
+
+{
+    "language": "cpp",
+    "framework": "React",
+    "problem": "graph traversal",
+    "project": "AI Code Assistant"
+}
+
+Then:
+
+User:
+Use DFS.
+
+Assistant already knows:
+
+DFS for the graph problem.
+
+Phase 3.3 : Hybrid Search ⭐⭐⭐⭐⭐⭐
+
+Current:
+
+Vector Search only
+
+Problem:
+
+Keywords matter in coding.
+
+unordered_map
+vector<int>
+O(log n)
+
+Vector search alone isn't enough.
+
+Industry:
+
+BM25
++
+Vector Search
+
+Used by:
+
+Perplexity
+NotebookLM
+OpenWebUI
+Phase 3.4 : Cross Encoder Reranker ⭐⭐⭐⭐⭐⭐⭐
+
+Retrieve:
+
+Top 20 chunks
+
+Then rerank:
+
+Cross Encoder
+↓
+Best 5 chunks
+
+Massive quality improvement.
+
+Used by:
+
+Cursor
+Perplexity
+Haystack
+LlamaIndex
+Phase 4
+Codebase RAG ⭐⭐⭐⭐⭐⭐⭐⭐⭐
+
+Index:
+
+.py
+.cpp
+.js
+.jsx
+ts
+tsx
+
+instead of only PDFs.
+
+Example:
+
+User:
+
+Add JWT authentication.
+
+Retriever finds:
+
+app.py
+database.py
+auth.py
+
+like Cursor.
+
+AST Chunking ⭐⭐⭐⭐⭐⭐⭐⭐⭐
+
+Instead of:
+
+500 characters
+
+split by:
+
+Functions
+Classes
+Methods
+
+For example:
+
+class Solution {
+
+    void dfs() {
+
+    }
+
+};
+
+dfs() remains intact.
+
+Multi-query Retrieval ⭐⭐⭐⭐⭐⭐
+
+User:
+
+Why TLE?
+
+Generate:
+
+time complexity
+
+optimization
+
+nested loops
+
+recursion depth
+
+Search all.
+
+Query Expansion ⭐⭐⭐⭐⭐
+Deadlock
+
+↓
+
+Deadlock
+Mutual exclusion
+Circular wait
+Hold and wait
+Phase 5
+
+This is where things become Cursor-like.
+
+Agentic RAG ⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐
+
+Gemini decides:
+
+Need retrieval?
+↓
+Search
+
+Need another file?
+↓
+Search again
+
+Need web search?
+↓
+Search web
+
+Need codebase?
+↓
+Search codebase
+
+Answer
+Tool Calling
+Terminal
+Python execution
+Compiler
+Git
+File editing
+Multi-file Editing
+
+User:
+
+Add login functionality.
+
+AI edits:
+
+app.py
+
+database.py
+
+auth.py
+
+frontend/Login.jsx

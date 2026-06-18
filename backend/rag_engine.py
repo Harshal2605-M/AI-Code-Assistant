@@ -1,4 +1,5 @@
 import os
+import json
 from dotenv import load_dotenv
 import google.generativeai as genai
 from google.api_core.exceptions import ResourceExhausted
@@ -17,10 +18,16 @@ from index_registry import (
 from conversation_memory import (
 
     add_message,
-    get_history
+    get_history,
+    get_message_count
 )
 from qdrant_db import get_next_chunk_id
 from retriever import retrieve
+from session_memory import (
+    get_session_memory,
+    #update_session_memory,
+    merge_session_memory
+)
 
 
 # ==========================
@@ -161,13 +168,13 @@ def generate_answer(query, chat_id):
         )
 
 
-        history_text = ""
+        recent_history_text = ""
 
-        for msg in history:
+        for msg in history[-10:]:
 
-            history_text += (
+            recent_history_text += (
 
-                f"{msg['role'].capitalize()}: "
+                f"{msg['role']}: "
 
                 f"{msg['content']}\n\n"
 
@@ -249,6 +256,17 @@ def generate_answer(query, chat_id):
 
             )
 
+        session_memory = get_session_memory(
+            chat_id
+        )
+
+        session_memory_text = "\n".join(
+
+            f"{key}: {value}"
+
+            for key, value in session_memory.items()
+
+        )
 
         # --------------------
         # Dynamic prompt
@@ -273,9 +291,14 @@ Rules:
    "I cannot answer because context does not contain information."
 
 
+Session Memory:
+
+{session_memory_text}
+
+
 Conversation History:
 
-{history_text}
+{recent_history_text}
 
 
 Retrieved PDF Context:
@@ -310,9 +333,19 @@ Use markdown:
 - code blocks
 
 
+Session Memory:
+
+{session_memory_text}
+
+
 Conversation History:
 
-{history_text}
+{recent_history_text}
+
+
+Retrieved PDF Context:
+
+{context}
 
 
 Current Question:
@@ -347,8 +380,93 @@ Current Question:
             answer[:3000]
 
         )
+    
+        # --------------------
+        # Message count
+        # --------------------
+
+        message_count = get_message_count(
+
+            chat_id
+
+        )
 
 
+        # --------------------
+        # Update session memory
+        # every 10 messages
+        # --------------------
+
+        if message_count % 10 == 0:
+
+            extract_prompt = f"""
+
+        Analyze the conversation below and extract
+        long-term session information.
+
+        Conversation:
+
+        {recent_history_text}
+
+        Current Query:
+
+        {query}
+
+        Return JSON only.
+
+        Example:
+
+        {{
+            "project_name": "...",
+            "backend": "...",
+            "frontend": "...",
+            "database": "...",
+            "vector_db": "...",
+            "current_task": "..."
+        }}
+
+        """
+
+            memory_response = model.generate_content(
+
+                extract_prompt
+
+            )
+
+            clean_json = (
+
+                memory_response.text
+
+                .replace("```json", "")
+
+                .replace("```", "")
+
+                .strip()
+
+            )
+
+            try:
+
+                new_memory = json.loads(
+
+                    clean_json
+
+                )
+
+                merge_session_memory(
+
+                    chat_id,
+
+                    new_memory
+
+                )
+
+            except Exception:
+
+                pass
+
+            
+        
         # --------------------
         # Sources
         # --------------------

@@ -35,8 +35,17 @@ CREATE TABLE IF NOT EXISTS messages (
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 
 );
+               
+CREATE TABLE IF NOT EXISTS session_memory (
+
+    chat_id UUID PRIMARY KEY,
+
+    memory JSONB
+
+);
 
 """)
+
 
 connection.commit()
 
