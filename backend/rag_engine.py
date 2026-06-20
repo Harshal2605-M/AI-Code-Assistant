@@ -28,6 +28,8 @@ from session_memory import (
     #update_session_memory,
     merge_session_memory
 )
+from memory_refiner import refine_memory
+from query_expander import expand_query
 
 
 # ==========================
@@ -221,9 +223,15 @@ def generate_answer(query, chat_id):
         # Retrieve PDF context
         # --------------------
 
-        results = retrieve(
+        expanded_query = expand_query(
 
             retrieval_query
+
+        )
+
+        results = retrieve(
+
+            expanded_query
 
         )
 
@@ -275,7 +283,6 @@ def generate_answer(query, chat_id):
         if len(context.strip()) > 50:
 
             prompt = f"""
-
 You are an AI Assistant with PDF-RAG support.
 
 Rules:
@@ -446,10 +453,23 @@ Current Question:
             )
 
             try:
-
                 new_memory = json.loads(
 
                     clean_json
+
+                )
+
+                current_memory = get_session_memory(
+
+                 chat_id
+
+                )
+
+                refined_memory = refine_memory(
+
+                    current_memory,
+
+                    new_memory
 
                 )
 
@@ -457,7 +477,7 @@ Current Question:
 
                     chat_id,
 
-                    new_memory
+                    refined_memory
 
                 )
 
