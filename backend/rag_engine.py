@@ -1,9 +1,10 @@
 import os
-import json
 from dotenv import load_dotenv
 import google.generativeai as genai
 from google.api_core.exceptions import ResourceExhausted
+#from requests import Session
 
+#from backend import session_memory
 from pdf_loader import (
     list_pdf_files,
     load_pdf
@@ -18,18 +19,17 @@ from index_registry import (
 from conversation_memory import (
 
     add_message,
-    get_history,
-    get_message_count
+    get_history
 )
 from qdrant_db import get_next_chunk_id
 from retriever import retrieve
 from session_memory import (
     get_session_memory,
     #update_session_memory,
-    merge_session_memory
+    #merge_session_memory
 )
-from memory_refiner import refine_memory
-from query_expander import expand_query
+#from memory_refiner import refine_memory
+#from query_expander import expand_query
 
 
 # ==========================
@@ -172,7 +172,7 @@ def generate_answer(query, chat_id):
 
         recent_history_text = ""
 
-        for msg in history[-10:]:
+        for msg in history[-6:]:
 
             recent_history_text += (
 
@@ -223,7 +223,7 @@ def generate_answer(query, chat_id):
         # Retrieve PDF context
         # --------------------
 
-        expanded_query = expand_query(
+        """expanded_query = expand_query(
 
             retrieval_query
 
@@ -233,6 +233,10 @@ def generate_answer(query, chat_id):
 
             expanded_query
 
+        )"""
+        results = retrieve(
+            retrieval_query,
+            top_k=5
         )
 
 
@@ -264,17 +268,17 @@ def generate_answer(query, chat_id):
 
             )
 
-        session_memory = get_session_memory(
+        """session_memory = get_session_memory(
             chat_id
-        )
+        )"""
 
-        session_memory_text = "\n".join(
+        """session_memory_text = "\n".join(
 
             f"{key}: {value}"
 
             for key, value in session_memory.items()
 
-        )
+        )"""
 
         # --------------------
         # Dynamic prompt
@@ -297,10 +301,6 @@ Rules:
 5. Never say:
    "I cannot answer because context does not contain information."
 
-
-Session Memory:
-
-{session_memory_text}
 
 
 Conversation History:
@@ -338,11 +338,6 @@ Use markdown:
 - lists
 - examples
 - code blocks
-
-
-Session Memory:
-
-{session_memory_text}
 
 
 Conversation History:
@@ -392,7 +387,7 @@ Current Question:
         # Message count
         # --------------------
 
-        message_count = get_message_count(
+        """message_count = get_message_count(
 
             chat_id
 
@@ -408,7 +403,7 @@ Current Question:
 
             extract_prompt = f"""
 
-        Analyze the conversation below and extract
+        """Analyze the conversation below and extract
         long-term session information.
 
         Conversation:
@@ -430,7 +425,7 @@ Current Question:
             "database": "...",
             "vector_db": "...",
             "current_task": "..."
-        }}
+        }}"""
 
         """
 
@@ -483,9 +478,14 @@ Current Question:
 
             except Exception:
 
-                pass
+                pass"""
 
-            
+        #session_memory = get_session_memory(chat_id)
+
+        """session_memory_text = "\n".join(
+            f"{key}: {value}"
+            for key, value in session_memory.items()
+        )   """
         
         # --------------------
         # Sources

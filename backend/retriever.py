@@ -12,7 +12,7 @@ model = SentenceTransformer(
 
 def retrieve(
     query,
-    top_k=3
+    top_k=5
 ):
 
     query_embedding = model.encode(
