@@ -1,5 +1,5 @@
 # AI-Code-Assistant
-#.
+
 🧠 PHASE 1 — COMPLETE WORKFLOW (End-to-End)
 
 This is what actually happens behind the scenes 👇
