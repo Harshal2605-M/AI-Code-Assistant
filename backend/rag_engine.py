@@ -28,6 +28,7 @@ from session_memory import (
     #update_session_memory,
     #merge_session_memory
 )
+from reranker import rerank
 #from memory_refiner import refine_memory
 #from query_expander import expand_query
 
@@ -236,8 +237,30 @@ def generate_answer(query, chat_id):
         )"""
         results = retrieve(
             retrieval_query,
-            top_k=5
+            top_k=20
         )
+
+        results = rerank(
+
+            retrieval_query,
+
+            results,
+
+            top_k=5
+
+        )
+
+        print("\nReranked Results:\n")
+
+        for r in results:
+
+            print(
+
+                r["score"],
+
+                r["source"]
+
+            )
 
 
         context = "\n\n".join(
@@ -493,23 +516,43 @@ Current Question:
 
         sources = []
 
+        seen = set()
+
         if len(context.strip()) > 50:
 
-            sources = list(
+            for r in results:
 
-                set(
+                key = (
 
-                    [
+                    r["source"],
 
-                        r["source"]
-
-                        for r in results
-
-                    ]
+                    r["page"]
 
                 )
 
-            )
+                if key not in seen:
+
+                    seen.add(
+
+                        key
+
+                    )
+
+                    sources.append(
+
+                        {
+
+                            "source":
+
+                            r["source"],
+
+                            "page":
+
+                            r["page"]
+
+                        }
+
+                    )
 
 
         return {

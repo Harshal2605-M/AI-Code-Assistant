@@ -412,3 +412,5 @@ Level 5 (Production SaaS)
 ✅ RAGAS
 
 ✅ Observability
+
+BM25
