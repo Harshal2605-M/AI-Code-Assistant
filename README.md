@@ -1,4 +1,4 @@
-# AI-Code-Assistant
+# AI-Code-Assistant #
 
 🧠 PHASE 1 — COMPLETE WORKFLOW (End-to-End)
 
