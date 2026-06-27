@@ -43,6 +43,20 @@ CREATE TABLE IF NOT EXISTS session_memory (
     memory JSONB
 
 );
+               
+CREATE TABLE IF NOT EXISTS projects (
+
+    project_id UUID PRIMARY KEY,
+
+    project_name TEXT NOT NULL,
+
+    project_path TEXT NOT NULL,
+
+    status TEXT DEFAULT 'indexed',
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+);
 
 """)
 
@@ -50,3 +64,5 @@ CREATE TABLE IF NOT EXISTS session_memory (
 connection.commit()
 
 print("Tables created successfully!")
+
+
