@@ -14,6 +14,10 @@ model = SentenceTransformer(
 
 def store_embeddings(all_chunks):
 
+    if not all_chunks:
+
+        return
+
     texts = [
 
         chunk["text"]
@@ -37,9 +41,26 @@ def store_embeddings(all_chunks):
     points = []
 
     for chunk, embedding in zip(
-            all_chunks,
-            embeddings
+
+        all_chunks,
+
+        embeddings
+
     ):
+
+        payload = {
+
+            key: value
+
+            for key, value in chunk.items()
+
+            if key != "chunk_id"
+
+        }
+
+        payload["chunk_id"] = chunk["chunk_id"]
+
+        payload["indexed_at"] = timestamp
 
         points.append(
 
@@ -49,24 +70,7 @@ def store_embeddings(all_chunks):
 
                 vector=embedding.tolist(),
 
-                payload={
-
-                    "source":
-                    chunk["source"],
-
-                    "page":
-                    chunk["page"],
-
-                    "chunk_id":
-                    chunk["chunk_id"],
-
-                    "text":
-                    chunk["text"],
-
-                    "indexed_at":
-                    timestamp
-
-                }
+                payload=payload
 
             )
 
@@ -89,9 +93,13 @@ def store_embeddings(all_chunks):
     )
 
     print(
+
         "Embeddings stored in Qdrant."
+
     )
 
     print(
+
         f"Total vectors in collection: {count_result.count}"
+
     )

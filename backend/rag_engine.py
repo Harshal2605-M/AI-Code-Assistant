@@ -98,17 +98,17 @@ for filename in pdf_files:
 
             all_chunks.append({
 
-                "chunk_id":
-                chunk_id,
+                "chunk_id": chunk_id,
 
-                "source":
-                doc["source"],
+                "scope": "global",
 
-                "page":
-                doc["page"],
+                "content_type": "pdf",
 
-                "text":
-                chunk
+                "source": doc["source"],
+
+                "page": doc["page"],
+
+                "text": chunk
 
             })
 
