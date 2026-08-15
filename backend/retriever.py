@@ -6,13 +6,13 @@ from qdrant_db import (
 )
 
 model = SentenceTransformer(
-    "all-MiniLM-L6-v2"
+    "BAAI/bge-base-en-v1.5"
 )
 
 
 def retrieve(
     query,
-    top_k=5
+    top_k=30
 ):
 
     query_embedding = model.encode(

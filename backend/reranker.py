@@ -6,9 +6,7 @@ from sentence_transformers import CrossEncoder
 # ==========================
 
 model = CrossEncoder(
-
-    "cross-encoder/ms-marco-MiniLM-L-6-v2"
-
+    "BAAI/bge-reranker-v2-m3"
 )
 
 
@@ -17,94 +15,39 @@ model = CrossEncoder(
 # ==========================
 
 def rerank(
-
-        query,
-
-        results,
-
-        top_k=5
-
+    query,
+    results,
+    top_k=5
 ):
 
-    # ----------------------
-    # Empty results
-    # ----------------------
-
     if not results:
-
         return []
 
-
-    # ----------------------
-    # Build query-chunk pairs
-    # ----------------------
-
     pairs = [
-
         (
-
             query,
-
             result["text"]
-
         )
-
         for result in results
-
     ]
 
-
-    # ----------------------
-    # Predict relevance scores
-    # ----------------------
-
     scores = model.predict(
-
         pairs
-
     )
 
-
-    # ----------------------
-    # Attach score
-    # ----------------------
-
     for result, score in zip(
-
-            results,
-
-            scores
-
+        results,
+        scores
     ):
 
         result["score"] = float(
-
             score
-
         )
 
-
-    # ----------------------
-    # Sort by score
-    # ----------------------
-
     sorted_results = sorted(
-
         results,
-
         key=lambda x: x["score"],
-
         reverse=True
-
     )
 
-
-    # ----------------------
-    # Return top chunks
-    # ----------------------
-
-    return sorted_results[
-
-        :top_k
-
-    ]
+    return sorted_results[:top_k]

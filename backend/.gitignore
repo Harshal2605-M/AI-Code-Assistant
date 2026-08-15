@@ -1,4 +1,23 @@
-.env
+# Python
 __pycache__/
 *.pyc
+
+# Virtual environment
 venv/
+.venv/
+
+# Environment
+.env
+
+# RAG local database
+qdrant_data/
+
+# PDF knowledge base
+docs/*.pdf
+
+# ZIP files
+*.zip
+
+# Generated files
+uploads/
+outputs/

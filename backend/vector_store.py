@@ -8,7 +8,7 @@ from qdrant_db import (
 )
 
 model = SentenceTransformer(
-    "BAAI/bge-small-en-v1.5"
+    "BAAI/bge-base-en-v1.5"
 )
 
 

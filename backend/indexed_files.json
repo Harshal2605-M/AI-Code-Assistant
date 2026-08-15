@@ -1,9 +1,63 @@
 {
+    "3db1d62ec0d12c6006e9af0cced3e381": {
+        "filename": "A Comprehensive Survey of Retrieval-Augmented Generation.pdf"
+    },
+    "5775a82c88c57fa0f5c1985c5a0713b6": {
+        "filename": "boosting.pdf"
+    },
     "c05b0d04b0bcbaef1e1ed20af0cf44cb": {
         "filename": "Class Notes.pdf"
     },
     "6a6fe3c4483f9c52e5666e62b0f3e637": {
         "filename": "Computer Networking Notes for Tech Placements (1).pdf"
+    },
+    "d34a0df55d364be74ace1b119af72340": {
+        "filename": "cs229-notes-backprop.pdf"
+    },
+    "31fa77d25c8ad6ee19b63a13a44f0408": {
+        "filename": "cs229-notes-deep_learning.pdf"
+    },
+    "1a34c6ac59990dd49ae49ddd7515db6b": {
+        "filename": "cs229-notes1.pdf"
+    },
+    "bc46c05edf861641232cb9e4eb56a468": {
+        "filename": "cs229-notes10.pdf"
+    },
+    "43c46c3b554bed151f2c579a4ea0cada": {
+        "filename": "cs229-notes11.pdf"
+    },
+    "540b7cadd14d4ffcc7d310b7f8036ffb": {
+        "filename": "cs229-notes12.pdf"
+    },
+    "07c7f87aa5a88c85c14aa0d4954fb38c": {
+        "filename": "cs229-notes13.pdf"
+    },
+    "4e2307921923dcd9525d0a9b1057d086": {
+        "filename": "cs229-notes2.pdf"
+    },
+    "ea2f121e7d6a2b4a096ae4cdfcfac847": {
+        "filename": "cs229-notes3.pdf"
+    },
+    "75ec62055da7ce452b0ef28d7e86fe0a": {
+        "filename": "cs229-notes4.pdf"
+    },
+    "d6eaaac07970bb9c07a6896f6b166b99": {
+        "filename": "cs229-notes5.pdf"
+    },
+    "a08233db849819219d8f81414817bda1": {
+        "filename": "cs229-notes6.pdf"
+    },
+    "953eee471cc957cb4ef25330ae11fd79": {
+        "filename": "cs229-notes7a.pdf"
+    },
+    "d51b3d4207d395b3567fab43dffbabf2": {
+        "filename": "cs229-notes7b.pdf"
+    },
+    "107590e5187c2ec452bf308c2739ab89": {
+        "filename": "cs229-notes8.pdf"
+    },
+    "68061b543ad6f81a92b91cf081dbf30e": {
+        "filename": "cs229-notes9.pdf"
     },
     "c2094cecd728d0083c8d4dbb6e784af7": {
         "filename": "CSS Notes.pdf"
@@ -11,10 +65,58 @@
     "b899bfa4454ca8e9e4a90596f9e23119": {
         "filename": "DBMS_Notes (2).pdf"
     },
+    "675eddec3653b8e3716a1ea1cfa55e45": {
+        "filename": "Developing Retrieval Augmented Generation.pdf"
+    },
+    "d7042cf175cf721a41a1e0f081e4f7f0": {
+        "filename": "error-analysis.pdf"
+    },
+    "90beaca014741c3f039941a549792ffc": {
+        "filename": "Essential_C++.pdf"
+    },
+    "fad5a3f54e7fcdf826cf09a94e03e276": {
+        "filename": "hoeffding.pdf"
+    },
+    "7c5d4e1e7b19a06b87f17a7ae9fa7bd2": {
+        "filename": "Intoduction_to_algorithms.pdf"
+    },
+    "16d1468a9d2cdf21a6df028cccc78fc5": {
+        "filename": "Introduction_to_Python_Programming-WEB.pdf"
+    },
+    "586a5f2973efb927cb1b0eebf8317277": {
+        "filename": "loss-functions.pdf"
+    },
+    "dc20a640c06003c6984db537fc31d868": {
+        "filename": "Natural Language Processing with Transformers.pdf"
+    },
     "d964955e344b2e13b3c3ac908a712f06": {
         "filename": "Object Oriented Programming (1) (1).pdf"
     },
     "2dcfb2075b026c87ff25c0048a88d6fa": {
         "filename": "Operating System Notes.pdf"
+    },
+    "62b609a05935f504db90918ebe1ad85e": {
+        "filename": "representer-function.pdf"
+    },
+    "52896327861cc97c68519a8793f8b2f1": {
+        "filename": "Retrieval-Augmented Generation .pdf"
+    },
+    "16df9323f053c7755ecefb25c2b7a771": {
+        "filename": "Retrieval-Augmented Generation for Large.pdf"
+    },
+    "06d1efcb05bb2c55cd039dab3fb28455": {
+        "filename": "The Linux Command Line.pdf"
+    },
+    "c7ead738b08913984e424bef03fcab0c": {
+        "filename": "The_C++_Programming_Language_4th_Edition_Bjarne_Stroustrup.pdf"
+    },
+    "b241686cbb348a8a78d10f50d1fc433d": {
+        "filename": "thinkjava2.pdf"
+    },
+    "d4acd947dd464f477e332eac4bd000cc": {
+        "filename": "thinkpython2.pdf"
+    },
+    "b7acf3962cc4038a91fecbaf08d127e0": {
+        "filename": "UnderstandingDeepLearning_02_09_26_C.pdf"
     }
 }

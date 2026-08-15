@@ -4,10 +4,15 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-connection = psycopg2.connect(
-    os.getenv("DATABASE_URL")
-)
 
+# ==========================
+# Database Connection
+# ==========================
+
+def get_connection():
+    return psycopg2.connect(
+        os.getenv("DATABASE_URL")
+    )
 
 
 # ==========================
@@ -15,125 +20,107 @@ connection = psycopg2.connect(
 # ==========================
 
 def create_chat(chat_id, title):
-    with connection.cursor() as cursor:
-        cursor.execute(
 
-            """
-            INSERT INTO chat_sessions
-            (chat_id, title)
+    connection = get_connection()
 
-            VALUES (%s, %s)
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                INSERT INTO chat_sessions
+                (chat_id, title)
 
-            ON CONFLICT (chat_id)
+                VALUES (%s, %s)
 
-            DO NOTHING
-            """,
+                ON CONFLICT (chat_id)
 
-            (chat_id, title)
+                DO NOTHING
+                """,
+                (chat_id, title)
+            )
 
-        )
+        connection.commit()
 
-    connection.commit()
+    finally:
+        connection.close()
 
 
 # ==========================
 # Add Message
 # ==========================
 
-def add_message(
+def add_message(chat_id, role, content):
 
-        chat_id,
+    connection = get_connection()
 
-        role,
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                INSERT INTO messages
+                (chat_id, role, content)
 
-        content
-
-):
-    with connection.cursor() as cursor:
-        cursor.execute(
-
-            """
-            INSERT INTO messages
-
-            (chat_id, role, content)
-
-            VALUES (%s, %s, %s)
-            """,
-
-            (
-
-                chat_id,
-
-                role,
-
-                content
-
+                VALUES (%s, %s, %s)
+                """,
+                (
+                    chat_id,
+                    role,
+                    content
+                )
             )
 
-        )
+        connection.commit()
 
-    connection.commit()
+    finally:
+        connection.close()
 
 
 # ==========================
 # Get Recent History
 # ==========================
 
-def get_history(
+def get_history(chat_id, limit=6):
 
-        chat_id,
+    connection = get_connection()
 
-        limit=6
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT role, content
 
-):
+                FROM messages
 
-    with connection.cursor() as cursor:
+                WHERE chat_id = %s
 
-        cursor.execute(
+                ORDER BY timestamp DESC
 
-            """
-            SELECT role, content
-
-            FROM messages
-
-            WHERE chat_id = %s
-
-            ORDER BY timestamp DESC
-
-            LIMIT %s
-            """,
-
-            (
-
-                chat_id,
-
-                limit
-
+                LIMIT %s
+                """,
+                (
+                    chat_id,
+                    limit
+                )
             )
 
-        )
+            rows = cursor.fetchall()
 
-        rows = cursor.fetchall()
+        rows.reverse()
 
-    rows.reverse()
+        history = []
 
-    history = []
+        for role, content in rows:
+            history.append(
+                {
+                    "role": role,
+                    "content": content
+                }
+            )
 
-    for role, content in rows:
+        return history
 
-        history.append(
-
-            {
-
-                "role": role,
-
-                "content": content
-
-            }
-
-        )
-
-    return history
+    finally:
+        connection.close()
 
 
 # ==========================
@@ -141,24 +128,24 @@ def get_history(
 # ==========================
 
 def clear_chat(chat_id):
-    with connection.cursor() as cursor:
-        cursor.execute(
 
-            """
-            DELETE FROM messages
+    connection = get_connection()
 
-            WHERE chat_id = %s
-            """,
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                DELETE FROM messages
 
-            (
-
-                chat_id,
-
+                WHERE chat_id = %s
+                """,
+                (chat_id,)
             )
 
-        )
+        connection.commit()
 
-    connection.commit()
+    finally:
+        connection.close()
 
 
 # ==========================
@@ -167,48 +154,49 @@ def clear_chat(chat_id):
 
 def delete_chat(chat_id):
 
-    with connection.cursor() as cursor:
+    connection = get_connection()
 
-        cursor.execute(
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                DELETE FROM messages
 
-            """
-            DELETE FROM messages
-
-            WHERE chat_id = %s
-            """,
-
-            (
-
-                chat_id,
+                WHERE chat_id = %s
+                """,
+                (chat_id,)
             )
-        )
+
+        connection.commit()
+
+    finally:
+        connection.close()
+
+
+# ==========================
+# Get Message Count
+# ==========================
 
 def get_message_count(chat_id):
 
-    with connection:
+    connection = get_connection()
 
+    try:
         with connection.cursor() as cursor:
-
             cursor.execute(
-
                 """
-
                 SELECT COUNT(*)
 
                 FROM messages
 
                 WHERE chat_id = %s
-
                 """,
-
-                (
-
-                    chat_id,
-
-                )
-
+                (chat_id,)
             )
 
             count = cursor.fetchone()[0]
 
-    return count
+        return count
+
+    finally:
+        connection.close()

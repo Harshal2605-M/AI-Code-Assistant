@@ -19,7 +19,7 @@ if not client.collection_exists(
 
         vectors_config=VectorParams(
 
-            size=384,  # all-MiniLM-L6-v2 output dimension
+            size=768,  
 
             distance=Distance.COSINE
 

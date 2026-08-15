@@ -1,10 +1,10 @@
 import os
+import traceback
+
 from dotenv import load_dotenv
 import google.generativeai as genai
 from google.api_core.exceptions import ResourceExhausted
-#from requests import Session
 
-#from backend import session_memory
 from pdf_loader import (
     list_pdf_files,
     load_pdf
@@ -17,7 +17,6 @@ from index_registry import (
     mark_indexed
 )
 from conversation_memory import (
-
     add_message,
     get_history
 )
@@ -25,12 +24,8 @@ from qdrant_db import get_next_chunk_id
 from retriever import retrieve
 from session_memory import (
     get_session_memory,
-    #update_session_memory,
-    #merge_session_memory
 )
 from reranker import rerank
-#from memory_refiner import refine_memory
-#from query_expander import expand_query
 
 
 # ==========================
@@ -39,7 +34,13 @@ from reranker import rerank
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 dotenv_path = os.path.join(base_dir, ".env")
+
 load_dotenv(dotenv_path)
+
+
+# ==========================
+# Gemini configuration
+# ==========================
 
 genai.configure(
     api_key=os.getenv(
@@ -114,7 +115,6 @@ for filename in pdf_files:
 
             chunk_id += 1
 
-
     if all_chunks:
 
         print(
@@ -126,18 +126,12 @@ for filename in pdf_files:
         )
 
         print(
-
             f"Added {len(all_chunks)} chunks."
-
         )
 
-
     mark_indexed(
-
         file_hash,
-
         filename
-
     )
 
 
@@ -145,7 +139,7 @@ for filename in pdf_files:
 # Gemini model
 # ==========================
 
-model=genai.GenerativeModel(
+model = genai.GenerativeModel(
     "gemini-2.5-flash"
 )
 
@@ -158,18 +152,27 @@ def generate_answer(query, chat_id):
 
     try:
 
-        # --------------------
-        # Save user message
-        # --------------------
+        # ==================================================
+        # STEP 1
+        # ==================================================
 
-        # --------------------
-        # Load history
-        # --------------------
+        print("\n========== CHAT DEBUG ==========")
+
+        print(
+            "STEP 1: before get_history"
+        )
 
         history = get_history(
             chat_id
         )
 
+        print(
+            "STEP 2: get_history successful"
+        )
+
+        # ==================================================
+        # Conversation History
+        # ==================================================
 
         recent_history_text = ""
 
@@ -183,10 +186,13 @@ def generate_answer(query, chat_id):
 
             )
 
+        # ==================================================
+        # STEP 2
+        # ==================================================
 
-        # --------------------
-        # Save current user query
-        # --------------------
+        print(
+            "STEP 3: before add user message"
+        )
 
         add_message(
 
@@ -198,9 +204,13 @@ def generate_answer(query, chat_id):
 
         )
 
-        # --------------------
-        # Retrieval query
-        # --------------------
+        print(
+            "STEP 4: add user message successful"
+        )
+
+        # ==================================================
+        # Retrieval Query
+        # ==================================================
 
         recent_history = history[-4:]
 
@@ -218,27 +228,30 @@ def generate_answer(query, chat_id):
 
         retrieval_query += query
 
-
-
-        # --------------------
-        # Retrieve PDF context
-        # --------------------
-
-        """expanded_query = expand_query(
-
-            retrieval_query
-
+        print(
+            "STEP 5: retrieval query created"
         )
 
+        """# ==================================================
+        # PDF Retrieval
+        # ==================================================
+
         results = retrieve(
 
-            expanded_query
-
-        )"""
-        results = retrieve(
             retrieval_query,
+
             top_k=20
+
         )
+
+        print(
+            f"STEP 6: retrieval successful - "
+            f"{len(results)} results"
+        )
+
+        # ==================================================
+        # Reranking
+        # ==================================================
 
         results = rerank(
 
@@ -248,9 +261,38 @@ def generate_answer(query, chat_id):
 
             top_k=5
 
+        )"""
+        results = retrieve(
+            retrieval_query,
+            top_k=10
         )
 
-        print("\nReranked Results:\n")
+        print("\n========== RAW RETRIEVAL ==========\n")
+
+        for r in results:
+            print(
+                r["score"],
+                "|",
+                r["source"],
+                "| page:",
+                r["page"]
+            )
+
+# Temporarily disable reranking
+# results = rerank(
+#     retrieval_query,
+#     results,
+#     top_k=5
+# )
+
+        print(
+            f"STEP 7: reranking successful - "
+            f"{len(results)} results"
+        )
+
+        print(
+            "\nReranked Results:\n"
+        )
 
         for r in results:
 
@@ -262,6 +304,9 @@ def generate_answer(query, chat_id):
 
             )
 
+        # ==================================================
+        # Context
+        # ==================================================
 
         context = "\n\n".join(
 
@@ -275,37 +320,23 @@ def generate_answer(query, chat_id):
 
         )
 
-
         print(
-
             "\nRetrieved Sources:\n"
-
         )
-
 
         for r in results:
 
             print(
-
                 r["source"]
-
             )
 
-        """session_memory = get_session_memory(
-            chat_id
-        )"""
+        print(
+            "\nSTEP 8: context created"
+        )
 
-        """session_memory_text = "\n".join(
-
-            f"{key}: {value}"
-
-            for key, value in session_memory.items()
-
-        )"""
-
-        # --------------------
-        # Dynamic prompt
-        # --------------------
+        # ==================================================
+        # Dynamic Prompt
+        # ==================================================
 
         if len(context.strip()) > 50:
 
@@ -325,7 +356,6 @@ Rules:
    "I cannot answer because context does not contain information."
 
 
-
 Conversation History:
 
 {recent_history_text}
@@ -342,13 +372,11 @@ Current Question:
 
 
 Generate a complete answer.
-
 """
 
         else:
 
             prompt = f"""
-
 You are an AI coding assistant.
 
 No useful PDF context was found.
@@ -376,25 +404,37 @@ Retrieved PDF Context:
 Current Question:
 
 {query}
-
 """
 
-        # --------------------
-        # Gemini generation
-        # --------------------
+        print(
+            "STEP 9: prompt created"
+        )
+
+        # ==================================================
+        # Gemini
+        # ==================================================
+
+        print(
+            "STEP 10: before Gemini generation"
+        )
 
         response = model.generate_content(
-
             prompt
-
         )
 
         answer = response.text
 
+        print(
+            "STEP 11: Gemini generation successful"
+        )
 
-        # --------------------
-        # Save assistant answer
-        # --------------------
+        # ==================================================
+        # Save Assistant Answer
+        # ==================================================
+
+        print(
+            "STEP 12: before add assistant message"
+        )
 
         add_message(
 
@@ -405,114 +445,14 @@ Current Question:
             answer[:3000]
 
         )
-    
-        # --------------------
-        # Message count
-        # --------------------
 
-        """message_count = get_message_count(
-
-            chat_id
-
+        print(
+            "STEP 13: add assistant message successful"
         )
 
-
-        # --------------------
-        # Update session memory
-        # every 10 messages
-        # --------------------
-
-        if message_count % 10 == 0:
-
-            extract_prompt = f"""
-
-        """Analyze the conversation below and extract
-        long-term session information.
-
-        Conversation:
-
-        {recent_history_text}
-
-        Current Query:
-
-        {query}
-
-        Return JSON only.
-
-        Example:
-
-        {{
-            "project_name": "...",
-            "backend": "...",
-            "frontend": "...",
-            "database": "...",
-            "vector_db": "...",
-            "current_task": "..."
-        }}"""
-
-        """
-
-            memory_response = model.generate_content(
-
-                extract_prompt
-
-            )
-
-            clean_json = (
-
-                memory_response.text
-
-                .replace("```json", "")
-
-                .replace("```", "")
-
-                .strip()
-
-            )
-
-            try:
-                new_memory = json.loads(
-
-                    clean_json
-
-                )
-
-                current_memory = get_session_memory(
-
-                 chat_id
-
-                )
-
-                refined_memory = refine_memory(
-
-                    current_memory,
-
-                    new_memory
-
-                )
-
-                merge_session_memory(
-
-                    chat_id,
-
-                    refined_memory
-
-                )
-
-            except Exception:
-
-                pass"""
-
-        #session_memory = get_session_memory(chat_id)
-
-        """session_memory_text = "\n".join(
-            f"{key}: {value}"
-            for key, value in session_memory.items()
-        )   """
-        
-        # --------------------
+        # ==================================================
         # Sources
-        # --------------------
+        # ==================================================
 
         sources = []
 
@@ -533,47 +473,46 @@ Current Question:
                 if key not in seen:
 
                     seen.add(
-
                         key
-
                     )
 
-                    sources.append(
+                    sources.append({
 
-                        {
+                        "source":
+                        r["source"],
 
-                            "source":
+                        "page":
+                        r["page"]
 
-                            r["source"],
+                    })
 
-                            "page":
+        print(
+            "STEP 14: sources created"
+        )
 
-                            r["page"]
-
-                        }
-
-                    )
-
+        print(
+            "========== CHAT DEBUG END ==========\n"
+        )
 
         return {
 
             "answer":
-
             answer,
 
             "sources":
-
             sources
 
         }
 
+    # ==================================================
+    # Gemini Rate Limit
+    # ==================================================
 
     except ResourceExhausted:
 
         return {
 
             "answer":
-
 """
 ## Gemini rate limit reached 🚫
 
@@ -586,32 +525,37 @@ Wait a few seconds and try again.
 
         }
 
+    # ==================================================
+    # Any Other Error
+    # ==================================================
 
     except Exception as e:
 
         print(
-
             "\n========= ERROR ========="
-
         )
 
         print(
-
-            e
-
+            f"ERROR TYPE: {type(e).__name__}"
         )
 
         print(
+            f"ERROR MESSAGE: {str(e)}"
+        )
 
+        print(
+            "\nFULL TRACEBACK:"
+        )
+
+        traceback.print_exc()
+
+        print(
             "=========================\n"
-
         )
-
 
         return {
 
             "answer":
-
 f"""
 ## Error
 
